@@ -2,6 +2,10 @@
 
 A beginner-friendly web application for tracking and managing AI use cases within an organization.
 
+## Live Demo
+[
+](https://ai-use-case-registry.onrender.com/)
+
 ## Features
 
 - Register AI use cases with detailed metadata
