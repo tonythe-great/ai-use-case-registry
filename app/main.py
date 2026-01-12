@@ -23,9 +23,63 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    """Serve the HTML form page."""
-    return templates.TemplateResponse("index.html", {"request": request})
+async def dashboard(request: Request):
+    """Serve the executive dashboard page."""
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
+
+@app.get("/register", response_class=HTMLResponse)
+async def register_form(request: Request):
+    """Serve the use case registration form."""
+    return templates.TemplateResponse("register.html", {"request": request})
+
+
+@app.get("/dashboard/stats")
+def get_dashboard_stats(db: Session = Depends(get_db)):
+    """Get dashboard statistics for the executive view."""
+    # Get all use cases
+    all_usecases = db.query(UseCase).all()
+    total_count = len(all_usecases)
+
+    # Count by risk tier
+    high_risk_count = sum(1 for uc in all_usecases if uc.risk_tier == "high")
+    medium_risk_count = sum(1 for uc in all_usecases if uc.risk_tier == "medium")
+    low_risk_count = sum(1 for uc in all_usecases if uc.risk_tier == "low")
+
+    # Count pending approvals
+    pending_count = sum(1 for uc in all_usecases if uc.status == "pending")
+
+    # Calculate external sharing percentage
+    external_sharing_count = sum(1 for uc in all_usecases if uc.external_sharing == "yes")
+    external_sharing_pct = round((external_sharing_count / total_count * 100), 1) if total_count > 0 else 0
+
+    # Get high risk items
+    high_risk_items = [
+        {
+            "id": uc.id,
+            "title": uc.title,
+            "owner": uc.owner,
+            "business_unit": uc.business_unit,
+            "data_types": uc.data_types,
+            "status": uc.status,
+            "risk_tier": uc.risk_tier,
+        }
+        for uc in all_usecases
+        if uc.risk_tier == "high"
+    ]
+
+    return {
+        "total_count": total_count,
+        "high_risk_count": high_risk_count,
+        "pending_count": pending_count,
+        "external_sharing_pct": external_sharing_pct,
+        "risk_distribution": {
+            "low": low_risk_count,
+            "medium": medium_risk_count,
+            "high": high_risk_count,
+        },
+        "high_risk_items": high_risk_items,
+    }
 
 
 @app.post("/usecases", response_model=UseCaseResponse, status_code=201)
