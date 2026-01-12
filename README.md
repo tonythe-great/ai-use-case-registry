@@ -3,13 +3,22 @@
 A beginner-friendly web application for tracking and managing AI use cases within an organization.
 
 ## Live Demo
-https://ai-use-case-registry.onrender.com/
+
+**Executive Dashboard:** https://ai-use-case-registry.onrender.com/
+
+**Registration Form:** https://ai-use-case-registry.onrender.com/register
 
 ## Features
 
+- **Executive Dashboard** with real-time metrics and visualizations
+  - Summary cards: Total Use Cases, High Risk Systems, Pending Approvals, External Data Sharing %
+  - Interactive Chart.js pie chart showing risk distribution
+  - High-risk items table with action buttons
+  - Auto-refresh every 30 seconds
+- **Professional UI** built with Tailwind CSS
 - Register AI use cases with detailed metadata
 - Automatic risk tier computation based on data sensitivity
-- Simple HTML form interface
+- Color-coded risk badges (red/yellow/green)
 - RESTful API for programmatic access
 - SQLite database for easy setup
 
@@ -46,7 +55,9 @@ The application will be available at:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | HTML form interface |
+| GET | `/` | Executive dashboard |
+| GET | `/register` | Use case registration form |
+| GET | `/dashboard/stats` | Dashboard statistics (JSON) |
 | POST | `/usecases` | Create a new use case |
 | GET | `/usecases` | List all use cases |
 | GET | `/usecases/{id}` | Get a specific use case |
@@ -89,7 +100,8 @@ ai-use-case-registry/
 │   ├── schemas.py       # Pydantic validation schemas
 │   ├── risk.py          # Risk tier computation logic
 │   └── templates/
-│       └── index.html   # HTML form interface
+│       ├── dashboard.html  # Executive dashboard (Tailwind + Chart.js)
+│       └── register.html   # Use case registration form
 ├── requirements.txt     # Python dependencies
 ├── runtime.txt          # Python version specification
 └── README.md            # This file
