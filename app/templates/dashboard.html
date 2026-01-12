@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Use-Case Registry - Executive Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">AI Use-Case Registry</h1>
+                        <p class="text-sm text-gray-500">Executive Dashboard</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="/register" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Register New Use Case
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Use Cases -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Use Cases</p>
+                        <p id="total-count" class="text-3xl font-bold text-gray-900 mt-1">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- High Risk Systems -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">High Risk Systems</p>
+                        <div class="flex items-center mt-1">
+                            <p id="high-risk-count" class="text-3xl font-bold text-gray-900">-</p>
+                            <span id="high-risk-badge" class="ml-2 px-2.5 py-0.5 bg-red-100 text-red-800 text-xs font-semibold rounded-full hidden">HIGH</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Approvals -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Pending Approvals</p>
+                        <div class="flex items-center mt-1">
+                            <p id="pending-count" class="text-3xl font-bold text-gray-900">-</p>
+                            <span id="pending-badge" class="ml-2 px-2.5 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full hidden">PENDING</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Data Sharing -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">External Data Sharing</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1"><span id="external-pct">-</span>%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Risk Distribution Chart -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Risk Distribution</h2>
+                <div class="relative h-64">
+                    <canvas id="risk-chart"></canvas>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                            <span class="text-gray-600">Low Risk</span>
+                        </div>
+                        <span id="low-risk-label" class="font-medium text-gray-900">-</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                            <span class="text-gray-600">Medium Risk</span>
+                        </div>
+                        <span id="medium-risk-label" class="font-medium text-gray-900">-</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                            <span class="text-gray-600">High Risk</span>
+                        </div>
+                        <span id="high-risk-label" class="font-medium text-gray-900">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- High Risk Items Table -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">High-Risk Use Cases</h2>
+                    <span class="px-2.5 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Requires Attention</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business Unit</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Types</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="high-risk-table" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="/register" class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Register New Use Case
+                </a>
+                <a href="/usecases" class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                    </svg>
+                    View All Use Cases (API)
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-gray-200 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">AI Use-Case Registry - Executive Dashboard</p>
+        </div>
+    </footer>
+
+    <script>
+        let riskChart = null;
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function createDataTypeBadges(dataTypes) {
+            if (!dataTypes || dataTypes.length === 0) {
+                return '<span class="text-gray-400 text-sm">None</span>';
+            }
+            return dataTypes.map(dt => {
+                const isHighRisk = ['PII', 'Health Data', 'Financial Data'].some(hr =>
+                    dt.toLowerCase().includes(hr.toLowerCase())
+                );
+                const bgColor = isHighRisk ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800';
+                return `<span class="inline-block px-2 py-0.5 ${bgColor} text-xs font-medium rounded mr-1 mb-1">${escapeHtml(dt)}</span>`;
+            }).join('');
+        }
+
+        function renderHighRiskTable(items) {
+            const tbody = document.getElementById('high-risk-table');
+
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                            <svg class="w-12 h-12 mx-auto text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="font-medium text-green-600">No high-risk use cases</p>
+                            <p class="text-sm text-gray-400">All systems are operating within acceptable risk levels</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-4">
+                        <div class="font-medium text-gray-900">${escapeHtml(item.title)}</div>
+                    </td>
+                    <td class="px-4 py-4 text-sm text-gray-600">${escapeHtml(item.owner)}</td>
+                    <td class="px-4 py-4 text-sm text-gray-600">${escapeHtml(item.business_unit)}</td>
+                    <td class="px-4 py-4">${createDataTypeBadges(item.data_types)}</td>
+                    <td class="px-4 py-4">
+                        <a href="/register?edit=${item.id}" class="inline-flex items-center px-3 py-1.5 bg-primary-100 text-primary-700 text-sm font-medium rounded-lg hover:bg-primary-200 transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRiskChart(distribution) {
+            const ctx = document.getElementById('risk-chart').getContext('2d');
+
+            const data = {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                datasets: [{
+                    data: [distribution.low, distribution.medium, distribution.high],
+                    backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+                    borderColor: ['#16a34a', '#ca8a04', '#dc2626'],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            };
+
+            if (riskChart) {
+                riskChart.data = data;
+                riskChart.update();
+            } else {
+                riskChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                                        return `${context.label}: ${context.raw} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/dashboard/stats');
+                const data = await response.json();
+
+                // Update summary cards
+                document.getElementById('total-count').textContent = data.total_count;
+                document.getElementById('high-risk-count').textContent = data.high_risk_count;
+                document.getElementById('pending-count').textContent = data.pending_count;
+                document.getElementById('external-pct').textContent = data.external_sharing_pct;
+
+                // Show badges if counts > 0
+                if (data.high_risk_count > 0) {
+                    document.getElementById('high-risk-badge').classList.remove('hidden');
+                }
+                if (data.pending_count > 0) {
+                    document.getElementById('pending-badge').classList.remove('hidden');
+                }
+
+                // Update risk distribution labels
+                document.getElementById('low-risk-label').textContent = data.risk_distribution.low;
+                document.getElementById('medium-risk-label').textContent = data.risk_distribution.medium;
+                document.getElementById('high-risk-label').textContent = data.risk_distribution.high;
+
+                // Render chart
+                renderRiskChart(data.risk_distribution);
+
+                // Render high risk table
+                renderHighRiskTable(data.high_risk_items);
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                document.getElementById('high-risk-table').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-red-500">
+                            Error loading data. Please refresh the page.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Load data on page load
+        loadDashboardData();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboardData, 30000);
+    </script>
+</body>
+</html>
