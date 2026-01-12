@@ -22,7 +22,7 @@ class UseCaseBase(BaseModel):
 class UseCaseCreate(UseCaseBase):
     """Schema for creating a use case."""
 
-    status: str = Field(default="draft", pattern="^(draft|pending|approved|rejected)$")
+    status: str = Field(default="pending", pattern="^(draft|pending|approved|rejected)$")
 
 
 class UseCaseUpdate(BaseModel):
