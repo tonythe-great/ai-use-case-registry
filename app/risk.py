@@ -7,6 +7,7 @@ HIGH_RISK_DATA_TYPES = {
     "health data",
     "financial data",
     "biometric",
+    "biometric data",
     "location data",
     "genetic data",
 }
@@ -17,6 +18,14 @@ MEDIUM_RISK_DATA_TYPES = {
     "employee data",
     "usage data",
     "behavioral data",
+}
+
+# Data types that are considered low-risk
+LOW_RISK_DATA_TYPES = {
+    "public data",
+    "aggregated data",
+    "product data",
+    "internal documents",
 }
 
 # Data residency locations that increase risk

@@ -68,7 +68,17 @@
             </div>
 
             <form id="usecase-form" class="space-y-6">
-                <!-- Basic Information -->
+                <!-- Section 1: Basic Information -->
+                <div class="bg-gray-50 -mx-6 px-6 py-4 -mt-6 rounded-t-xl border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-sm font-semibold">1</div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900">Basic Information</h3>
+                            <p class="text-xs text-gray-500">Identify the use case and responsible parties</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
@@ -87,23 +97,114 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="business_unit" class="block text-sm font-medium text-gray-700 mb-1">Business Unit <span class="text-red-500">*</span></label>
-                        <input type="text" id="business_unit" name="business_unit" required
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                            placeholder="e.g., Customer Service">
+                        <select id="business_unit" name="business_unit" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white">
+                            <option value="">Select a business unit</option>
+                            <optgroup label="Technology">
+                                <option value="Engineering">Engineering</option>
+                                <option value="IT">Information Technology (IT)</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="Product">Product</option>
+                                <option value="Security">Security</option>
+                            </optgroup>
+                            <optgroup label="Operations">
+                                <option value="Customer Service">Customer Service</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Supply Chain">Supply Chain</option>
+                                <option value="Quality Assurance">Quality Assurance</option>
+                            </optgroup>
+                            <optgroup label="Business">
+                                <option value="Sales">Sales</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Finance">Finance</option>
+                                <option value="HR">Human Resources (HR)</option>
+                                <option value="Legal">Legal & Compliance</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="Research">Research & Development</option>
+                                <option value="Executive">Executive Office</option>
+                                <option value="Other">Other</option>
+                            </optgroup>
+                        </select>
                     </div>
                     <div>
-                        <label for="vendor" class="block text-sm font-medium text-gray-700 mb-1">Vendor <span class="text-red-500">*</span></label>
-                        <input type="text" id="vendor" name="vendor" required
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                            placeholder="e.g., OpenAI, Anthropic, Internal">
+                        <label for="vendor" class="block text-sm font-medium text-gray-700 mb-1">Vendor / Provider <span class="text-red-500">*</span></label>
+                        <select id="vendor" name="vendor" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white">
+                            <option value="">Select a vendor</option>
+                            <optgroup label="Large Language Models">
+                                <option value="OpenAI">OpenAI (GPT-4, ChatGPT)</option>
+                                <option value="Anthropic">Anthropic (Claude)</option>
+                                <option value="Google">Google (Gemini, PaLM)</option>
+                                <option value="Meta">Meta (Llama)</option>
+                                <option value="Cohere">Cohere</option>
+                                <option value="Mistral">Mistral AI</option>
+                            </optgroup>
+                            <optgroup label="Cloud AI Platforms">
+                                <option value="AWS">Amazon Web Services (AWS)</option>
+                                <option value="Azure">Microsoft Azure AI</option>
+                                <option value="GCP">Google Cloud AI</option>
+                                <option value="IBM">IBM Watson</option>
+                            </optgroup>
+                            <optgroup label="Specialized AI">
+                                <option value="Hugging Face">Hugging Face</option>
+                                <option value="Stability AI">Stability AI</option>
+                                <option value="Midjourney">Midjourney</option>
+                                <option value="Salesforce">Salesforce Einstein</option>
+                            </optgroup>
+                            <optgroup label="Internal / Other">
+                                <option value="Internal">Internal / In-house</option>
+                                <option value="Open Source">Open Source Model</option>
+                                <option value="Other">Other (specify in purpose)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 2: AI Model Details -->
+                <div class="bg-gray-50 -mx-6 px-6 py-4 border-y border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-sm font-semibold">2</div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900">AI Model Details</h3>
+                            <p class="text-xs text-gray-500">Describe the AI technology and its intended purpose</p>
+                        </div>
                     </div>
                 </div>
 
                 <div>
-                    <label for="purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Common Use Case Types <span class="text-gray-400 font-normal">(click to pre-fill purpose)</span></label>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <button type="button" onclick="setPurposeTemplate('chatbot')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Customer Support Chatbot
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('content')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Content Generation
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('analysis')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Data Analysis
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('automation')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Process Automation
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('recommendation')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Recommendation Engine
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('document')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Document Processing
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('fraud')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Fraud Detection
+                        </button>
+                        <button type="button" onclick="setPurposeTemplate('search')" class="purpose-chip px-3 py-1.5 text-sm border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700 transition-colors">
+                            Semantic Search
+                        </button>
+                    </div>
+                    <label for="purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose Description <span class="text-red-500">*</span></label>
                     <textarea id="purpose" name="purpose" required rows="4"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-y"
                         placeholder="Describe the purpose of this AI use case..."></textarea>
+                    <p class="text-xs text-gray-500 mt-1">Tip: Select a template above or write your own description</p>
                 </div>
 
                 <div>
@@ -111,80 +212,223 @@
                     <select id="model_type" name="model_type" required
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white">
                         <option value="">Select a model type</option>
-                        <option value="LLM">Large Language Model (LLM)</option>
-                        <option value="Classification">Classification</option>
-                        <option value="Regression">Regression</option>
-                        <option value="Computer Vision">Computer Vision</option>
-                        <option value="NLP">Natural Language Processing</option>
-                        <option value="Recommendation">Recommendation System</option>
-                        <option value="Other">Other</option>
+                        <optgroup label="Generative AI">
+                            <option value="LLM">Large Language Model (LLM) - Text generation, chat</option>
+                            <option value="Image Generation">Image Generation - DALL-E, Midjourney, Stable Diffusion</option>
+                            <option value="Code Generation">Code Generation - Copilot, code completion</option>
+                            <option value="Audio Generation">Audio/Speech Generation - TTS, music</option>
+                        </optgroup>
+                        <optgroup label="Analysis & Prediction">
+                            <option value="Classification">Classification - Categorizing data into classes</option>
+                            <option value="Regression">Regression - Predicting numerical values</option>
+                            <option value="Anomaly Detection">Anomaly Detection - Finding outliers</option>
+                            <option value="Forecasting">Forecasting - Time series predictions</option>
+                        </optgroup>
+                        <optgroup label="Language & Vision">
+                            <option value="NLP">Natural Language Processing - Text analysis</option>
+                            <option value="Computer Vision">Computer Vision - Image/video analysis</option>
+                            <option value="OCR">OCR - Optical character recognition</option>
+                            <option value="Speech Recognition">Speech Recognition - Audio to text</option>
+                        </optgroup>
+                        <optgroup label="Other Types">
+                            <option value="Recommendation">Recommendation System - Personalized suggestions</option>
+                            <option value="Search">Semantic Search - Vector/embedding search</option>
+                            <option value="Chatbot">Chatbot/Virtual Agent - Conversational AI</option>
+                            <option value="Other">Other</option>
+                        </optgroup>
                     </select>
                 </div>
 
+                <!-- Section 3: Data & Privacy -->
+                <div class="bg-gray-50 -mx-6 px-6 py-4 border-y border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-sm font-semibold">3</div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900">Data & Privacy</h3>
+                            <p class="text-xs text-gray-500">Specify what data types are involved and where they reside</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Data Types Section -->
-                <div class="border-t border-gray-200 pt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-3">Data Types</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="PII" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">PII</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="Customer Data" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">Customer Data</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="Financial Data" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">Financial Data</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="Health Data" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">Health Data</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="Employee Data" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">Employee Data</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="Usage Data" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">Usage Data</span>
-                        </label>
-                        <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                            <input type="checkbox" name="data_types" value="Public Data" class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500">
-                            <span class="text-sm text-gray-700">Public Data</span>
-                        </label>
+                <div class="pt-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Data Types Used</label>
+                            <p class="text-xs text-gray-500 mt-0.5">Select all data types that apply to this use case</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="clearAllDataTypes()" class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100">
+                                Clear all
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- High Risk Data (Red) -->
+                    <div class="mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                            <span class="text-xs font-medium text-red-700 uppercase tracking-wide">High Risk Data</span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                            <label class="flex items-center space-x-2 p-3 border border-red-200 rounded-lg hover:bg-red-50 cursor-pointer transition-colors bg-red-50/30">
+                                <input type="checkbox" name="data_types" value="PII" class="w-4 h-4 text-red-600 rounded focus:ring-red-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">PII</span>
+                                    <p class="text-xs text-gray-500">Names, emails, addresses</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-red-200 rounded-lg hover:bg-red-50 cursor-pointer transition-colors bg-red-50/30">
+                                <input type="checkbox" name="data_types" value="Health Data" class="w-4 h-4 text-red-600 rounded focus:ring-red-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Health Data</span>
+                                    <p class="text-xs text-gray-500">PHI, medical records</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-red-200 rounded-lg hover:bg-red-50 cursor-pointer transition-colors bg-red-50/30">
+                                <input type="checkbox" name="data_types" value="Financial Data" class="w-4 h-4 text-red-600 rounded focus:ring-red-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Financial Data</span>
+                                    <p class="text-xs text-gray-500">Payment, banking info</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-red-200 rounded-lg hover:bg-red-50 cursor-pointer transition-colors bg-red-50/30">
+                                <input type="checkbox" name="data_types" value="Biometric Data" class="w-4 h-4 text-red-600 rounded focus:ring-red-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Biometric Data</span>
+                                    <p class="text-xs text-gray-500">Fingerprints, face ID</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Medium Risk Data (Yellow) -->
+                    <div class="mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                            <span class="text-xs font-medium text-yellow-700 uppercase tracking-wide">Medium Risk Data</span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                            <label class="flex items-center space-x-2 p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 cursor-pointer transition-colors bg-yellow-50/30">
+                                <input type="checkbox" name="data_types" value="Customer Data" class="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Customer Data</span>
+                                    <p class="text-xs text-gray-500">Account info, preferences</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 cursor-pointer transition-colors bg-yellow-50/30">
+                                <input type="checkbox" name="data_types" value="Employee Data" class="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Employee Data</span>
+                                    <p class="text-xs text-gray-500">HR records, performance</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 cursor-pointer transition-colors bg-yellow-50/30">
+                                <input type="checkbox" name="data_types" value="Usage Data" class="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Usage Data</span>
+                                    <p class="text-xs text-gray-500">Analytics, behavior</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-yellow-200 rounded-lg hover:bg-yellow-50 cursor-pointer transition-colors bg-yellow-50/30">
+                                <input type="checkbox" name="data_types" value="Location Data" class="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Location Data</span>
+                                    <p class="text-xs text-gray-500">GPS, IP-based location</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Low Risk Data (Green) -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span class="text-xs font-medium text-green-700 uppercase tracking-wide">Low Risk Data</span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                            <label class="flex items-center space-x-2 p-3 border border-green-200 rounded-lg hover:bg-green-50 cursor-pointer transition-colors bg-green-50/30">
+                                <input type="checkbox" name="data_types" value="Public Data" class="w-4 h-4 text-green-600 rounded focus:ring-green-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Public Data</span>
+                                    <p class="text-xs text-gray-500">Publicly available info</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-green-200 rounded-lg hover:bg-green-50 cursor-pointer transition-colors bg-green-50/30">
+                                <input type="checkbox" name="data_types" value="Aggregated Data" class="w-4 h-4 text-green-600 rounded focus:ring-green-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Aggregated Data</span>
+                                    <p class="text-xs text-gray-500">Anonymized statistics</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-green-200 rounded-lg hover:bg-green-50 cursor-pointer transition-colors bg-green-50/30">
+                                <input type="checkbox" name="data_types" value="Product Data" class="w-4 h-4 text-green-600 rounded focus:ring-green-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Product Data</span>
+                                    <p class="text-xs text-gray-500">Catalog, inventory</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-3 border border-green-200 rounded-lg hover:bg-green-50 cursor-pointer transition-colors bg-green-50/30">
+                                <input type="checkbox" name="data_types" value="Internal Documents" class="w-4 h-4 text-green-600 rounded focus:ring-green-500">
+                                <div>
+                                    <span class="text-sm text-gray-700 font-medium">Internal Docs</span>
+                                    <p class="text-xs text-gray-500">Policies, procedures</p>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Risk-Related Fields -->
-                <div class="border-t border-gray-200 pt-6">
-                    <div class="flex items-center mb-4">
-                        <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="pt-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                         </svg>
-                        <span class="text-sm font-medium text-gray-700">Risk Assessment Fields</span>
+                        <span class="text-sm font-semibold text-gray-900">Risk Assessment</span>
                     </div>
+                    <p class="text-xs text-gray-500 mb-4">These fields affect the automatic risk tier calculation for this use case</p>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="data_residency" class="block text-sm font-medium text-gray-700 mb-1">Data Residency <span class="text-red-500">*</span></label>
                             <select id="data_residency" name="data_residency" required
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white">
-                                <option value="">Select data residency</option>
-                                <option value="US">United States</option>
-                                <option value="EU">European Union</option>
-                                <option value="UK">United Kingdom</option>
-                                <option value="APAC">Asia Pacific</option>
-                                <option value="International">International / Multi-region</option>
+                                <option value="">Select where data is stored/processed</option>
+                                <optgroup label="Single Region (Lower Risk)">
+                                    <option value="US">United States - US data centers only</option>
+                                    <option value="EU">European Union - GDPR compliant</option>
+                                    <option value="UK">United Kingdom - UK data protection</option>
+                                    <option value="APAC">Asia Pacific - APAC region only</option>
+                                    <option value="Canada">Canada - Canadian data centers</option>
+                                    <option value="Australia">Australia - AU data sovereignty</option>
+                                </optgroup>
+                                <optgroup label="Multi-Region (Higher Risk)">
+                                    <option value="International">International / Multi-region</option>
+                                    <option value="Unknown">Unknown / Vendor-managed</option>
+                                </optgroup>
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Multi-region deployment increases risk tier</p>
                         </div>
                         <div>
-                            <label for="external_sharing" class="block text-sm font-medium text-gray-700 mb-1">External Sharing <span class="text-red-500">*</span></label>
-                            <select id="external_sharing" name="external_sharing" required
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white">
-                                <option value="">Select an option</option>
-                                <option value="no">No - Internal use only</option>
-                                <option value="yes">Yes - Shared externally</option>
-                            </select>
+                            <label for="external_sharing" class="block text-sm font-medium text-gray-700 mb-1">External Data Sharing <span class="text-red-500">*</span></label>
+                            <div class="space-y-2">
+                                <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                    <input type="radio" name="external_sharing" value="no" required class="mt-0.5 w-4 h-4 text-primary-600 focus:ring-primary-500">
+                                    <div class="ml-3">
+                                        <span class="text-sm font-medium text-gray-700">Internal Use Only</span>
+                                        <p class="text-xs text-gray-500">Data stays within the organization</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                    <input type="radio" name="external_sharing" value="yes" class="mt-0.5 w-4 h-4 text-primary-600 focus:ring-primary-500">
+                                    <div class="ml-3">
+                                        <span class="text-sm font-medium text-gray-700">Shared Externally</span>
+                                        <p class="text-xs text-gray-500">Data may be shared with third parties or customers</p>
+                                    </div>
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">External sharing increases risk tier</p>
                         </div>
                     </div>
                 </div>
@@ -230,6 +474,36 @@
         const messageDiv = document.getElementById('message');
         const usecasesContent = document.getElementById('usecases-content');
         const usecaseCount = document.getElementById('usecase-count');
+
+        // Purpose templates for quick selection
+        const purposeTemplates = {
+            chatbot: "AI-powered customer support chatbot to handle customer inquiries, provide instant responses to common questions, and escalate complex issues to human agents. The system will reduce response times and improve customer satisfaction.",
+            content: "Automated content generation system for creating marketing copy, product descriptions, blog posts, and social media content. The AI will assist content teams in producing high-quality written materials at scale.",
+            analysis: "Data analysis and insights platform that processes large datasets to identify trends, patterns, and actionable insights. The system will support data-driven decision making across the organization.",
+            automation: "Process automation solution to streamline repetitive business workflows, reduce manual effort, and improve operational efficiency. The AI will handle routine tasks and flag exceptions for human review.",
+            recommendation: "Personalized recommendation engine to suggest relevant products, content, or services to users based on their preferences, behavior, and historical data. The system aims to improve user engagement and conversion rates.",
+            document: "Intelligent document processing system for extracting, classifying, and organizing information from unstructured documents such as invoices, contracts, and reports. The AI will automate data entry and document workflows.",
+            fraud: "Real-time fraud detection system to identify suspicious activities, transactions, or behaviors. The AI will analyze patterns and anomalies to prevent fraudulent activities and protect the organization.",
+            search: "Semantic search solution that understands natural language queries and retrieves relevant information from internal knowledge bases, documents, and databases. The system will improve information discovery and access."
+        };
+
+        function setPurposeTemplate(templateKey) {
+            const purposeField = document.getElementById('purpose');
+            purposeField.value = purposeTemplates[templateKey] || '';
+            purposeField.focus();
+
+            // Highlight the selected chip
+            document.querySelectorAll('.purpose-chip').forEach(chip => {
+                chip.classList.remove('bg-primary-100', 'border-primary-500', 'text-primary-700');
+            });
+            event.target.classList.add('bg-primary-100', 'border-primary-500', 'text-primary-700');
+        }
+
+        function clearAllDataTypes() {
+            document.querySelectorAll('input[name="data_types"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
 
         function showMessage(text, isError = false) {
             messageDiv.textContent = text;

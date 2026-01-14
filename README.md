@@ -15,8 +15,14 @@ A beginner-friendly web application for tracking and managing AI use cases withi
   - Interactive Chart.js pie chart showing risk distribution
   - High-risk items table with action buttons
   - Auto-refresh every 30 seconds
+- **User-Friendly Registration Form** with guided input
+  - Organized into 3 numbered sections: Basic Information, AI Model Details, Data & Privacy
+  - Dropdown menus for Business Unit (17 departments) and Vendor (16+ AI providers)
+  - Quick-select purpose templates (8 common use case types with pre-filled descriptions)
+  - Expanded Model Type options (16 types organized by category)
+  - Color-coded Data Types organized by risk level (High/Medium/Low)
+  - Radio buttons with descriptions for External Sharing
 - **Professional UI** built with Tailwind CSS
-- Register AI use cases with detailed metadata
 - Automatic risk tier computation based on data sensitivity
 - Color-coded risk badges (red/yellow/green)
 - RESTful API for programmatic access
@@ -81,6 +87,35 @@ The application will be available at:
 | `status` | string | "draft", "pending", "approved", or "rejected" |
 | `created_at` | datetime | Auto-generated |
 | `updated_at` | datetime | Auto-updated |
+
+## Available Form Options
+
+### Business Units
+Technology: Engineering, IT, Data Science, Product, Security
+Operations: Customer Service, Operations, Supply Chain, Quality Assurance
+Business: Sales, Marketing, Finance, HR, Legal & Compliance
+Other: Research & Development, Executive Office, Other
+
+### Vendors/Providers
+LLM Providers: OpenAI, Anthropic, Google, Meta, Cohere, Mistral AI
+Cloud Platforms: AWS, Azure, GCP, IBM Watson
+Specialized: Hugging Face, Stability AI, Midjourney, Salesforce Einstein
+Other: Internal/In-house, Open Source, Other
+
+### Model Types
+Generative AI: LLM, Image Generation, Code Generation, Audio Generation
+Analysis: Classification, Regression, Anomaly Detection, Forecasting
+Language & Vision: NLP, Computer Vision, OCR, Speech Recognition
+Other: Recommendation, Semantic Search, Chatbot, Other
+
+### Data Types (by risk level)
+High Risk: PII, Health Data, Financial Data, Biometric Data
+Medium Risk: Customer Data, Employee Data, Usage Data, Location Data
+Low Risk: Public Data, Aggregated Data, Product Data, Internal Documents
+
+### Data Residency
+Single Region: US, EU, UK, APAC, Canada, Australia
+Multi-Region: International, Unknown/Vendor-managed
 
 ## Risk Tier Computation
 
