@@ -3,344 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Readiness Report - {{ intake.system_name or 'AI System' }}</title>
+    <title>AI Intake Form - {{ intake.system_name or 'New Assessment' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @media print {
-            .no-print { display: none !important; }
-            .print-break { page-break-before: always; }
-            body { font-size: 12px; }
+        .form-section {
+            scroll-margin-top: 100px;
+        }
+        select, input, textarea {
+            font-size: 16px; /* Prevents zoom on mobile */
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200 no-print">
-        <div class="max-w-5xl mx-auto px-4 py-4">
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <a href="/intake" class="flex items-center space-x-3">
-                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 class="text-lg font-bold text-gray-900">Readiness Report</h1>
-                        </div>
-                    </a>
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">AI System Intake Form</h1>
+                        <p class="text-sm text-gray-500">Enterprise Governance Assessment</p>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="window.print()" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Print Report
-                    </button>
-                    <a href="/intake" class="text-sm text-gray-600 hover:text-gray-900">Back to List</a>
-                </div>
+                <a href="/intake" class="text-sm text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 py-8">
-        <!-- Report Header -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
-            <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-900">AI Governance Readiness Report</h1>
-                <p class="text-gray-500 mt-2">Generated {{ intake.submitted_at.strftime('%B %d, %Y') if intake.submitted_at else 'Draft' }}</p>
-            </div>
-
-            <div class="flex items-center justify-center mb-6">
-                {% if intake.readiness_status == 'approved' %}
-                <div class="flex items-center px-6 py-3 bg-green-100 rounded-full">
-                    <svg class="w-8 h-8 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-xl font-bold text-green-800">APPROVED</span>
-                </div>
-                {% elif intake.readiness_status == 'conditional' %}
-                <div class="flex items-center px-6 py-3 bg-yellow-100 rounded-full">
-                    <svg class="w-8 h-8 text-yellow-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-xl font-bold text-yellow-800">CONDITIONAL APPROVAL</span>
-                </div>
-                {% elif intake.readiness_status == 'not_ready' %}
-                <div class="flex items-center px-6 py-3 bg-red-100 rounded-full">
-                    <svg class="w-8 h-8 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-xl font-bold text-red-800">NOT READY</span>
-                </div>
-                {% else %}
-                <div class="flex items-center px-6 py-3 bg-gray-100 rounded-full">
-                    <span class="text-xl font-bold text-gray-800">PENDING REVIEW</span>
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="border-t border-gray-200 pt-6">
-                <h2 class="text-2xl font-bold text-gray-900 text-center">{{ intake.system_name or 'Untitled AI System' }}</h2>
-                <p class="text-gray-600 text-center mt-2 max-w-2xl mx-auto">{{ intake.business_purpose or 'No description provided' }}</p>
+    <!-- Progress Bar -->
+    <div class="bg-white border-b">
+        <div class="max-w-4xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500">Complete all required fields</span>
+                <span class="text-blue-600 font-medium">Auto-saves as you type</span>
             </div>
         </div>
+    </div>
 
-        <!-- Executive Summary -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Executive Summary</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-sm text-gray-500">Vendor</div>
-                    <div class="text-lg font-semibold text-gray-900">{{ intake.vendor_name or 'In-house' }}</div>
-                </div>
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-sm text-gray-500">Deployment</div>
-                    <div class="text-lg font-semibold text-gray-900">{{ intake.deployment_status|default('N/A')|replace('_', ' ')|title }}</div>
-                </div>
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-sm text-gray-500">Users</div>
-                    <div class="text-lg font-semibold text-gray-900">{{ intake.user_count or 'TBD' }}</div>
-                </div>
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-sm text-gray-500">Decision Type</div>
-                    <div class="text-lg font-semibold text-gray-900">{{ intake.decision_classification|default('N/A')|replace('_', ' ')|title }}</div>
-                </div>
-            </div>
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <form id="intake-form" method="POST" action="/api/intakes/{{ intake.id }}" class="space-y-8">
 
-            {% if intake.conditions_for_approval %}
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                <h4 class="font-semibold text-yellow-800 mb-2">Conditions for Full Approval:</h4>
-                <ul class="list-disc list-inside text-sm text-yellow-700 space-y-1">
-                    {% for condition in intake.conditions_for_approval %}
-                    <li>{{ condition }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-
-            {% if intake.restrictions %}
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <h4 class="font-semibold text-red-800 mb-2">Restrictions:</h4>
-                <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
-                    {% for restriction in intake.restrictions %}
-                    <li>{{ restriction }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Ownership -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Ownership & Accountability</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <div class="text-sm text-gray-500 mb-1">Approving Authority</div>
-                    <div class="font-semibold text-gray-900">{{ intake.approving_authority or 'Not specified' }}</div>
-                    {% if intake.approving_authority_title %}
-                    <div class="text-sm text-gray-600">{{ intake.approving_authority_title }}</div>
-                    {% endif %}
-                    {% if intake.approving_authority_email %}
-                    <div class="text-sm text-blue-600">{{ intake.approving_authority_email }}</div>
-                    {% endif %}
+            <!-- Section 1: Basic Information -->
+            <section class="form-section bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-blue-600 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3 text-sm">1</span>
+                        Basic Information
+                    </h2>
+                    <p class="text-blue-100 text-sm mt-1">Tell us about the AI system you're assessing</p>
                 </div>
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <div class="text-sm text-gray-500 mb-1">Business Owner</div>
-                    <div class="font-semibold text-gray-900">{{ intake.business_owner or 'Not specified' }}</div>
-                    {% if intake.business_owner_email %}
-                    <div class="text-sm text-blue-600">{{ intake.business_owner_email }}</div>
-                    {% endif %}
-                </div>
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <div class="text-sm text-gray-500 mb-1">Technical Owner</div>
-                    <div class="font-semibold text-gray-900">{{ intake.technical_owner or 'Not specified' }}</div>
-                    {% if intake.technical_owner_email %}
-                    <div class="text-sm text-blue-600">{{ intake.technical_owner_email }}</div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Sensitivity -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Data Sensitivity & Controls</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h4 class="font-semibold text-gray-700 mb-2">Approved Data Types</h4>
-                    {% if intake.approved_data_types %}
-                    <div class="flex flex-wrap gap-2">
-                        {% for dtype in intake.approved_data_types %}
-                        <span class="px-2 py-1 text-sm bg-green-100 text-green-800 rounded">{{ dtype }}</span>
-                        {% endfor %}
+                <div class="p-6 space-y-5">
+                    <!-- System Name -->
+                    <div>
+                        <label for="system_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            AI System Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="system_name" name="system_name"
+                               value="{{ intake.system_name or '' }}"
+                               placeholder="e.g., ChatGPT Enterprise, Microsoft Copilot"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               required>
                     </div>
-                    {% else %}
-                    <p class="text-gray-500 text-sm">No approved data types specified</p>
-                    {% endif %}
-                </div>
 
-                <div>
-                    <h4 class="font-semibold text-gray-700 mb-2">Prohibited Data Types</h4>
-                    {% if intake.prohibited_data_types %}
-                    <div class="flex flex-wrap gap-2">
-                        {% for dtype in intake.prohibited_data_types %}
-                        <span class="px-2 py-1 text-sm bg-red-100 text-red-800 rounded">{{ dtype }}</span>
-                        {% endfor %}
+                    <!-- Business Purpose -->
+                    <div>
+                        <label for="business_purpose" class="block text-sm font-medium text-gray-700 mb-2">
+                            What will this AI be used for? <span class="text-red-500">*</span>
+                        </label>
+                        <select id="business_purpose_select"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2">
+                            <option value="">Select a common use case...</option>
+                            <option value="Information gathering, research, and decision support">Research & Decision Support</option>
+                            <option value="Content creation and editing (documents, emails, presentations)">Content Creation</option>
+                            <option value="Customer service and support automation">Customer Service</option>
+                            <option value="Data analysis and reporting">Data Analysis</option>
+                            <option value="Software development and code assistance">Software Development</option>
+                            <option value="Process automation and workflow optimization">Process Automation</option>
+                            <option value="Training and employee education">Training & Education</option>
+                            <option value="custom">Other (describe below)</option>
+                        </select>
+                        <textarea id="business_purpose" name="business_purpose" rows="2"
+                                  placeholder="Describe the specific business purpose..."
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.business_purpose or '' }}</textarea>
                     </div>
-                    {% else %}
-                    <p class="text-gray-500 text-sm">No prohibited data types specified</p>
-                    {% endif %}
-                </div>
-            </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
-                <div class="text-center">
-                    <div class="text-sm text-gray-500">Data Retention</div>
-                    <div class="font-semibold">{{ intake.data_retention_policy|default('N/A')|replace('_', ' ')|title }}</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-sm text-gray-500">Egress Risk</div>
-                    <div class="font-semibold">{{ intake.data_egress_risk|default('N/A')|title }}</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-sm text-gray-500">User Training</div>
-                    <div class="font-semibold">{{ 'Yes' if intake.user_awareness_training else 'No' }}</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-sm text-gray-500">Usage Logging</div>
-                    <div class="font-semibold">{{ 'Enabled' if intake.usage_logging_enabled else 'Disabled' }}</div>
-                </div>
-            </div>
-        </div>
+                    <!-- Vendor -->
+                    <div>
+                        <label for="vendor_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            AI Provider / Vendor <span class="text-red-500">*</span>
+                        </label>
+                        <select id="vendor_name" name="vendor_name"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">Select vendor...</option>
+                            <optgroup label="Major AI Providers">
+                                <option value="OpenAI" {% if intake.vendor_name == 'OpenAI' %}selected{% endif %}>OpenAI (ChatGPT, GPT-4)</option>
+                                <option value="Microsoft" {% if intake.vendor_name == 'Microsoft' %}selected{% endif %}>Microsoft (Copilot, Azure OpenAI)</option>
+                                <option value="Google" {% if intake.vendor_name == 'Google' %}selected{% endif %}>Google (Gemini, Vertex AI)</option>
+                                <option value="Anthropic" {% if intake.vendor_name == 'Anthropic' %}selected{% endif %}>Anthropic (Claude)</option>
+                                <option value="Amazon" {% if intake.vendor_name == 'Amazon' %}selected{% endif %}>Amazon (Bedrock, Q)</option>
+                            </optgroup>
+                            <optgroup label="Enterprise Platforms">
+                                <option value="Salesforce" {% if intake.vendor_name == 'Salesforce' %}selected{% endif %}>Salesforce (Einstein)</option>
+                                <option value="ServiceNow" {% if intake.vendor_name == 'ServiceNow' %}selected{% endif %}>ServiceNow</option>
+                                <option value="SAP" {% if intake.vendor_name == 'SAP' %}selected{% endif %}>SAP</option>
+                                <option value="IBM" {% if intake.vendor_name == 'IBM' %}selected{% endif %}>IBM (Watson)</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="In-house" {% if intake.vendor_name == 'In-house' %}selected{% endif %}>In-house / Custom Built</option>
+                                <option value="Other" {% if intake.vendor_name == 'Other' %}selected{% endif %}>Other</option>
+                            </optgroup>
+                        </select>
+                    </div>
 
-        <!-- Risk Registry -->
-        {% if intake.risk_assessments %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 print-break">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Risk Registry</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Level</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for risk in intake.risk_assessments %}
-                        <tr>
-                            <td class="px-4 py-3 text-sm text-gray-900">{{ risk.risk_category|default('Other')|replace('_', ' ')|title }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ risk.risk_description or 'No description' }}</td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs rounded-full
-                                    {% if risk.mitigation_status == 'complete' %}bg-green-100 text-green-800
-                                    {% elif risk.mitigation_status == 'in_progress' %}bg-blue-100 text-blue-800
-                                    {% elif risk.mitigation_status == 'planned' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                    {{ risk.mitigation_status|default('Unknown')|replace('_', ' ')|title }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs rounded-full
-                                    {% if risk.residual_risk_level == 'high' %}bg-red-100 text-red-800
-                                    {% elif risk.residual_risk_level == 'medium' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-green-100 text-green-800{% endif %}">
-                                    {{ risk.residual_risk_level|default('Unknown')|title }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endif %}
+                    <!-- Deployment Status -->
+                    <div>
+                        <label for="deployment_status" class="block text-sm font-medium text-gray-700 mb-2">
+                            Current Stage <span class="text-red-500">*</span>
+                        </label>
+                        <select id="deployment_status" name="deployment_status"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">Select current stage...</option>
+                            <option value="planning" {% if intake.deployment_status == 'planning' %}selected{% endif %}>Planning - Not yet deployed</option>
+                            <option value="pilot" {% if intake.deployment_status == 'pilot' %}selected{% endif %}>Pilot - Testing with limited users</option>
+                            <option value="limited_production" {% if intake.deployment_status == 'limited_production' %}selected{% endif %}>Limited Production - Specific teams only</option>
+                            <option value="full_production" {% if intake.deployment_status == 'full_production' %}selected{% endif %}>Full Production - Organization-wide</option>
+                            <option value="deprecated" {% if intake.deployment_status == 'deprecated' %}selected{% endif %}>Deprecated - Being phased out</option>
+                        </select>
+                    </div>
 
-        <!-- Required Artifacts -->
-        {% if intake.required_artifacts %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Required Artifacts</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Artifact</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for artifact in intake.required_artifacts %}
-                        <tr>
-                            <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ artifact.artifact_name or 'Unnamed' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ artifact.artifact_type|default('Other')|replace('_', ' ')|title }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ artifact.owner or 'Unassigned' }}</td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs rounded-full
-                                    {% if artifact.status == 'completed' %}bg-green-100 text-green-800
-                                    {% elif artifact.status == 'in_progress' %}bg-blue-100 text-blue-800
-                                    {% elif artifact.status == 'waived' %}bg-gray-100 text-gray-800
-                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                    {{ artifact.status|default('Pending')|replace('_', ' ')|title }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endif %}
+                    <!-- User Count -->
+                    <div>
+                        <label for="user_count" class="block text-sm font-medium text-gray-700 mb-2">
+                            Number of Users
+                        </label>
+                        <select id="user_count_range"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select user count range...</option>
+                            <option value="10">1-10 users</option>
+                            <option value="50">11-50 users</option>
+                            <option value="100">51-100 users</option>
+                            <option value="500">101-500 users</option>
+                            <option value="1000">500+ users</option>
+                        </select>
+                        <input type="hidden" id="user_count" name="user_count" value="{{ intake.user_count or '' }}">
+                    </div>
+                </div>
+            </section>
 
-        <!-- Action Items -->
-        {% if intake.action_items %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Action Items</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Responsible</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Urgency</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for action in intake.action_items %}
-                        <tr>
-                            <td class="px-4 py-3 text-sm text-gray-900">{{ action.action_description or 'No description' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ action.responsible_party or 'Unassigned' }}</td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs rounded-full
-                                    {% if action.urgency_level == 'immediate' %}bg-red-100 text-red-800
-                                    {% elif action.urgency_level == 'high' %}bg-orange-100 text-orange-800
-                                    {% elif action.urgency_level == 'medium' %}bg-yellow-100 text-yellow-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                    {{ action.urgency_level|default('Medium')|title }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs rounded-full
-                                    {% if action.status == 'completed' %}bg-green-100 text-green-800
-                                    {% elif action.status == 'in_progress' %}bg-blue-100 text-blue-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                    {{ action.status|default('Pending')|replace('_', ' ')|title }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endif %}
+            <!-- Section 2: Human Oversight -->
+            <section class="form-section bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-purple-600 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3 text-sm">2</span>
+                        Human Oversight
+                    </h2>
+                    <p class="text-purple-100 text-sm mt-1">How will humans be involved in AI decisions?</p>
+                </div>
+                <div class="p-6 space-y-5">
+                    <!-- Decision Classification -->
+                    <div>
+                        <label for="decision_classification" class="block text-sm font-medium text-gray-700 mb-2">
+                            How will AI outputs be used? <span class="text-red-500">*</span>
+                        </label>
+                        <select id="decision_classification" name="decision_classification"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">Select how outputs will be used...</option>
+                            <option value="informational" {% if intake.decision_classification == 'informational' %}selected{% endif %}>Information Only - Humans make all decisions</option>
+                            <option value="decision_support" {% if intake.decision_classification == 'decision_support' %}selected{% endif %}>Decision Support - AI recommends, humans decide</option>
+                            <option value="semi_autonomous" {% if intake.decision_classification == 'semi_autonomous' %}selected{% endif %}>Semi-Autonomous - AI acts with human oversight</option>
+                            <option value="fully_autonomous" {% if intake.decision_classification == 'fully_autonomous' %}selected{% endif %}>Fully Autonomous - AI operates independently</option>
+                        </select>
+                    </div>
 
-        <!-- Footer -->
-        <div class="text-center text-sm text-gray-500 py-6">
-            <p>Report generated by AI Governance Intake System</p>
-            <p>Intake ID: {{ intake.id }} | Last Updated: {{ intake.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
-        </div>
+                    <!-- Human in the Loop -->
+                    <div>
+                        <label for="human_in_the_loop" class="block text-sm font-medium text-gray-700 mb-2">
+                            Level of Human Review <span class="text-red-500">*</span>
+                        </label>
+                        <select id="human_in_the_loop" name="human_in_the_loop"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <option value="">Select level of human review...</option>
+                            <option value="full_oversight" {% if intake.human_in_the_loop == 'full_oversight' %}selected{% endif %}>Full Oversight - Human reviews every output</option>
+                            <option value="approval_required" {% if intake.human_in_the_loop == 'approval_required' %}selected{% endif %}>Approval Required - Human approves important decisions</option>
+                            <option value="exception_only" {% if intake.human_in_the_loop == 'exception_only' %}selected{% endif %}>Exception Only - Human reviews flagged items</option>
+                            <option value="none" {% if intake.human_in_the_loop == 'none' %}selected{% endif %}>No Review - AI outputs used directly</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Data & Privacy -->
+            <section class="form-section bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-emerald-600 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3 text-sm">3</span>
+                        Data & Privacy
+                    </h2>
+                    <p class="text-emerald-100 text-sm mt-1">What data will be used with this AI?</p>
+                </div>
+                <div class="p-6 space-y-5">
+                    <!-- Approved Data Types -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            What types of data will be used? <span class="text-red-500">*</span>
+                        </label>
+                        <p class="text-sm text-gray-500 mb-3">Select all that apply</p>
+                        {% set approved_data = intake.approved_data_types or [] %}
+                        <div class="grid grid-cols-2 gap-2">
+                            {% set data_options = [
+                                ('Public Information', 'green'),
+                                ('Internal Documents', 'green'),
+                                ('Business Strategy', 'yellow'),
+                                ('Employee Data', 'yellow'),
+                                ('Customer Data', 'orange'),
+                                ('Financial Data', 'orange'),
+                                ('Personal Information (PII)', 'red'),
+                                ('Health Data', 'red')
+                            ] %}
+                            {% for dtype, risk in data_options %}
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50
+                                         {% if dtype in approved_data %}border-{{ risk }}-500 bg-{{ risk }}-50{% else %}border-gray-200{% endif %}">
+                                <input type="checkbox" name="approved_data_types[]" value="{{ dtype }}"
+                                       {% if dtype in approved_data %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-3 text-sm text-gray-700">{{ dtype }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Data Retention -->
+                    <div>
+                        <label for="data_retention_policy" class="block text-sm font-medium text-gray-700 mb-2">
+                            Does the vendor store your data?
+                        </label>
+                        <select id="data_retention_policy" name="data_retention_policy"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select data retention policy...</option>
+                            <option value="zero_retention" {% if intake.data_retention_policy == 'zero_retention' %}selected{% endif %}>No Retention - Data deleted immediately</option>
+                            <option value="30_days" {% if intake.data_retention_policy == '30_days' %}selected{% endif %}>30 Days</option>
+                            <option value="90_days" {% if intake.data_retention_policy == '90_days' %}selected{% endif %}>90 Days</option>
+                            <option value="1_year" {% if intake.data_retention_policy == '1_year' %}selected{% endif %}>1 Year</option>
+                            <option value="indefinite" {% if intake.data_retention_policy == 'indefinite' %}selected{% endif %}>Indefinite / Unknown</option>
+                        </select>
+                    </div>
+
+                    <!-- User Training -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            User Training & Awareness
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50
+                                         {% if intake.user_awareness_training %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                                <input type="checkbox" name="user_awareness_training" value="true"
+                                       {% if intake.user_awareness_training %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-3 text-sm text-gray-700">Users will receive training on proper use</span>
+                            </label>
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50
+                                         {% if intake.user_awareness_attestation %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                                <input type="checkbox" name="user_awareness_attestation" value="true"
+                                       {% if intake.user_awareness_attestation %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-3 text-sm text-gray-700">Users must sign an acceptable use agreement</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Ownership -->
+            <section class="form-section bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-orange-500 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3 text-sm">4</span>
+                        Ownership & Accountability
+                    </h2>
+                    <p class="text-orange-100 text-sm mt-1">Who is responsible for this AI system?</p>
+                </div>
+                <div class="p-6 space-y-5">
+                    <!-- Approving Authority -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-blue-800 mb-3">
+                            Executive Sponsor / Approving Authority <span class="text-red-500">*</span>
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="approving_authority"
+                                   value="{{ intake.approving_authority or '' }}"
+                                   placeholder="Full Name"
+                                   class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   required>
+                            <input type="text" name="approving_authority_title"
+                                   value="{{ intake.approving_authority_title or '' }}"
+                                   placeholder="Title (e.g., CTO, VP Engineering)"
+                                   class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Business Owner -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Business Owner
+                        </label>
+                        <p class="text-sm text-gray-500 mb-2">Person responsible for business outcomes</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="business_owner"
+                                   value="{{ intake.business_owner or '' }}"
+                                   placeholder="Full Name"
+                                   class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <input type="email" name="business_owner_email"
+                                   value="{{ intake.business_owner_email or '' }}"
+                                   placeholder="Email"
+                                   class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Technical Owner -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Technical Owner
+                        </label>
+                        <p class="text-sm text-gray-500 mb-2">Person responsible for technical implementation</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" name="technical_owner"
+                                   value="{{ intake.technical_owner or '' }}"
+                                   placeholder="Full Name"
+                                   class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <input type="email" name="technical_owner_email"
+                                   value="{{ intake.technical_owner_email or '' }}"
+                                   placeholder="Email"
+                                   class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Compliance & Monitoring -->
+            <section class="form-section bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-slate-600 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3 text-sm">5</span>
+                        Compliance & Monitoring
+                    </h2>
+                    <p class="text-slate-200 text-sm mt-1">How will usage be tracked and monitored?</p>
+                </div>
+                <div class="p-6 space-y-5">
+                    <!-- Federal Contracts -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Does your organization hold federal contracts?
+                        </label>
+                        <select id="federal_contracts" name="federal_contracts"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select...</option>
+                            <option value="true" {% if intake.federal_contracts %}selected{% endif %}>Yes</option>
+                            <option value="false" {% if intake.federal_contracts == false %}selected{% endif %}>No</option>
+                            <option value="unknown">I don't know</option>
+                        </select>
+                    </div>
+
+                    <!-- Logging -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Monitoring & Logging
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50
+                                         {% if intake.usage_logging_enabled %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                                <input type="checkbox" name="usage_logging_enabled" value="true"
+                                       {% if intake.usage_logging_enabled %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-3 text-sm text-gray-700">Usage logging is enabled</span>
+                            </label>
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50
+                                         {% if intake.compliance_visibility %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                                <input type="checkbox" name="compliance_visibility" value="true"
+                                       {% if intake.compliance_visibility %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-3 text-sm text-gray-700">Compliance team has access to monitoring</span>
+                            </label>
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50
+                                         {% if intake.incident_response_documented %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                                <input type="checkbox" name="incident_response_documented" value="true"
+                                       {% if intake.incident_response_documented %}checked{% endif %}
+                                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-3 text-sm text-gray-700">Incident response process is documented</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Submit Section -->
+            <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Ready to submit?</h3>
+                            <p class="text-sm text-gray-500">Your assessment will be reviewed by the governance team</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <a href="/intake" class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
+                                Save Draft
+                            </a>
+                            <button type="submit" class="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 font-medium">
+                                Submit for Review
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
     </main>
+
+    <!-- Footer -->
+    <footer class="border-t bg-white mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-sm text-gray-500">
+            <p>Enterprise AI Governance System</p>
+            <p class="mt-1">Framework: NIST AI Risk Management Framework (AI RMF)</p>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-populate business purpose from dropdown
+        document.getElementById('business_purpose_select').addEventListener('change', function() {
+            const textarea = document.getElementById('business_purpose');
+            if (this.value && this.value !== 'custom') {
+                textarea.value = this.value;
+            }
+        });
+
+        // Auto-populate user count from range
+        document.getElementById('user_count_range').addEventListener('change', function() {
+            document.getElementById('user_count').value = this.value;
+        });
+
+        // Set initial user count range based on existing value
+        const userCount = {{ intake.user_count or 0 }};
+        const rangeSelect = document.getElementById('user_count_range');
+        if (userCount > 0) {
+            if (userCount <= 10) rangeSelect.value = '10';
+            else if (userCount <= 50) rangeSelect.value = '50';
+            else if (userCount <= 100) rangeSelect.value = '100';
+            else if (userCount <= 500) rangeSelect.value = '500';
+            else rangeSelect.value = '1000';
+        }
+    </script>
 </body>
 </html>
