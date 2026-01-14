@@ -1,0 +1,302 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 10: Action Items - AI Governance Intake{% endblock %}
+
+{% block step_title %}Required Next Actions{% endblock %}
+{% block step_description %}Track action items needed to complete or maintain governance.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-6">
+    <!-- Info Banner -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <svg class="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="text-sm text-blue-800">
+                    Add action items that need to be completed. These will be tracked in the final readiness report.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Items -->
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Action Items</h3>
+
+        <div id="actions-container" class="space-y-4">
+            {% set actions = intake.action_items or [] %}
+            {% if actions %}
+                {% for action in actions %}
+                <div class="action-item border border-gray-200 rounded-lg p-4" data-action-id="{{ action.id }}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center space-x-3 flex-1">
+                            <!-- Urgency Badge -->
+                            <select name="action_urgency_{{ action.id }}"
+                                    class="px-3 py-1 text-xs font-medium rounded-full border-0 focus:ring-2 focus:ring-blue-500
+                                           {% if action.urgency_level == 'immediate' %}bg-red-100 text-red-800
+                                           {% elif action.urgency_level == 'high' %}bg-orange-100 text-orange-800
+                                           {% elif action.urgency_level == 'medium' %}bg-yellow-100 text-yellow-800
+                                           {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <option value="immediate" {% if action.urgency_level == 'immediate' %}selected{% endif %}>Immediate</option>
+                                <option value="high" {% if action.urgency_level == 'high' %}selected{% endif %}>High</option>
+                                <option value="medium" {% if action.urgency_level == 'medium' %}selected{% endif %}>Medium</option>
+                                <option value="low" {% if action.urgency_level == 'low' %}selected{% endif %}>Low</option>
+                            </select>
+
+                            <!-- Status -->
+                            <select name="action_status_{{ action.id }}"
+                                    class="px-3 py-1 text-xs font-medium rounded-full border-0 focus:ring-2 focus:ring-blue-500
+                                           {% if action.status == 'completed' %}bg-green-100 text-green-800
+                                           {% elif action.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                           {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <option value="pending" {% if action.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="in_progress" {% if action.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="completed" {% if action.status == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                        <button type="button"
+                                onclick="deleteAction({{ action.id }})"
+                                class="p-2 text-gray-400 hover:text-red-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Action Description</label>
+                            <textarea name="action_description_{{ action.id }}"
+                                      rows="2"
+                                      placeholder="Describe the action item..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ action.action_description or '' }}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Responsible Party</label>
+                                <input type="text"
+                                       name="action_responsible_{{ action.id }}"
+                                       value="{{ action.responsible_party or '' }}"
+                                       placeholder="Person responsible"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
+                                <input type="date"
+                                       name="action_due_{{ action.id }}"
+                                       value="{{ action.due_date.strftime('%Y-%m-%d') if action.due_date else '' }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Notes</label>
+                            <textarea name="action_notes_{{ action.id }}"
+                                      rows="2"
+                                      placeholder="Additional notes..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ action.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Add Action Button -->
+        <button type="button"
+                onclick="addNewAction()"
+                class="mt-4 w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Action Item
+        </button>
+    </div>
+
+    <!-- Urgency Guide -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Urgency Levels</h4>
+        <div class="text-sm text-gray-600 space-y-2">
+            <div class="flex items-center">
+                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 mr-2">Immediate</span>
+                <span>Must be completed before AI can be used</span>
+            </div>
+            <div class="flex items-center">
+                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-100 text-orange-800 mr-2">High</span>
+                <span>Required within 30 days</span>
+            </div>
+            <div class="flex items-center">
+                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 mr-2">Medium</span>
+                <span>Required within 90 days</span>
+            </div>
+            <div class="flex items-center">
+                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-800 mr-2">Low</span>
+                <span>Track for future completion</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    {% if intake.action_items %}
+    <div class="border-t pt-6">
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Action Summary</h4>
+        <div class="grid grid-cols-4 gap-4 text-center">
+            <div class="bg-gray-50 rounded-lg p-3">
+                <div class="text-2xl font-bold text-gray-900">{{ intake.action_items|length }}</div>
+                <div class="text-xs text-gray-500">Total</div>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3">
+                <div class="text-2xl font-bold text-red-600">{{ intake.action_items|selectattr('urgency_level', 'eq', 'immediate')|list|length }}</div>
+                <div class="text-xs text-gray-500">Immediate</div>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3">
+                <div class="text-2xl font-bold text-blue-600">{{ intake.action_items|selectattr('status', 'eq', 'in_progress')|list|length }}</div>
+                <div class="text-xs text-gray-500">In Progress</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3">
+                <div class="text-2xl font-bold text-green-600">{{ intake.action_items|selectattr('status', 'eq', 'completed')|list|length }}</div>
+                <div class="text-xs text-gray-500">Completed</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const intakeId = {{ intake.id }};
+
+async function addNewAction() {
+    try {
+        const response = await fetch(`/api/intakes/${intakeId}/actions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action_description: '',
+                urgency_level: 'medium',
+                status: 'pending'
+            })
+        });
+
+        if (response.ok) {
+            const action = await response.json();
+            addActionToDOM(action.id);
+        } else {
+            alert('Failed to add action');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to add action');
+    }
+}
+
+function addActionToDOM(actionId) {
+    const container = document.getElementById('actions-container');
+    const actionHtml = `
+        <div class="action-item border border-gray-200 rounded-lg p-4" data-action-id="${actionId}">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center space-x-3 flex-1">
+                    <select name="action_urgency_${actionId}" onchange="updateAction(${actionId})"
+                            class="px-3 py-1 text-xs font-medium rounded-full border-0 bg-yellow-100 text-yellow-800 focus:ring-2 focus:ring-blue-500">
+                        <option value="immediate">Immediate</option>
+                        <option value="high">High</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select name="action_status_${actionId}" onchange="updateAction(${actionId})"
+                            class="px-3 py-1 text-xs font-medium rounded-full border-0 bg-gray-100 text-gray-800 focus:ring-2 focus:ring-blue-500">
+                        <option value="pending" selected>Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <button type="button" onclick="deleteAction(${actionId})" class="p-2 text-gray-400 hover:text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Action Description</label>
+                    <textarea name="action_description_${actionId}" rows="2" placeholder="Describe the action item..."
+                              onchange="updateAction(${actionId})"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Responsible Party</label>
+                        <input type="text" name="action_responsible_${actionId}" placeholder="Person responsible"
+                               onchange="updateAction(${actionId})"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
+                        <input type="date" name="action_due_${actionId}"
+                               onchange="updateAction(${actionId})"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Notes</label>
+                    <textarea name="action_notes_${actionId}" rows="2" placeholder="Additional notes..."
+                              onchange="updateAction(${actionId})"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', actionHtml);
+}
+
+async function updateAction(actionId) {
+    const data = {
+        action_description: document.querySelector(`[name="action_description_${actionId}"]`).value,
+        responsible_party: document.querySelector(`[name="action_responsible_${actionId}"]`).value,
+        urgency_level: document.querySelector(`[name="action_urgency_${actionId}"]`).value,
+        due_date: document.querySelector(`[name="action_due_${actionId}"]`).value || null,
+        status: document.querySelector(`[name="action_status_${actionId}"]`).value,
+        notes: document.querySelector(`[name="action_notes_${actionId}"]`).value
+    };
+
+    try {
+        await fetch(`/api/intakes/${intakeId}/actions/${actionId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+    } catch (error) {
+        console.error('Error updating action:', error);
+    }
+}
+
+async function deleteAction(actionId) {
+    if (!confirm('Delete this action item?')) return;
+
+    try {
+        const response = await fetch(`/api/intakes/${intakeId}/actions/${actionId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            document.querySelector(`[data-action-id="${actionId}"]`).remove();
+        } else {
+            alert('Failed to delete action');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to delete action');
+    }
+}
+
+// Add onchange handlers to existing actions
+document.querySelectorAll('.action-item').forEach(item => {
+    const actionId = item.dataset.actionId;
+    item.querySelectorAll('select, input, textarea').forEach(el => {
+        el.addEventListener('change', () => updateAction(actionId));
+    });
+});
+</script>
+{% endblock %}

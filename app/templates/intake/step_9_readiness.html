@@ -1,0 +1,246 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 9: Readiness - AI Governance Intake{% endblock %}
+
+{% block step_title %}Readiness Determination{% endblock %}
+{% block step_description %}Overall readiness assessment and approval conditions.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-6">
+    <!-- Readiness Status -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Readiness Status
+        </label>
+        <p class="text-sm text-gray-500 mb-4">Based on your assessment, what is the current readiness status?</p>
+
+        <div class="space-y-3">
+            {% set status_options = [
+                ('approved', 'Approved', 'Ready for production use with no restrictions', 'bg-green-100 border-green-500 text-green-800', 'bg-green-500'),
+                ('conditional', 'Conditional Approval', 'Approved with specific conditions that must be met', 'bg-yellow-100 border-yellow-500 text-yellow-800', 'bg-yellow-500'),
+                ('not_ready', 'Not Ready', 'Cannot be approved until significant gaps are addressed', 'bg-red-100 border-red-500 text-red-800', 'bg-red-500')
+            ] %}
+            {% for value, label, desc, classes, dot_class in status_options %}
+            <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer transition-colors
+                         {% if intake.readiness_status == value %}{{ classes }}{% else %}border-gray-200 hover:border-gray-300{% endif %}">
+                <input type="radio"
+                       name="readiness_status"
+                       value="{{ value }}"
+                       {% if intake.readiness_status == value %}checked{% endif %}
+                       class="mt-1 h-4 w-4 border-gray-300 focus:ring-blue-500">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full {{ dot_class }} mr-2"></span>
+                        <span class="font-medium">{{ label }}</span>
+                    </div>
+                    <p class="text-sm opacity-75 mt-1">{{ desc }}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Conditions for Approval -->
+    <div id="conditions-section" class="border-t pt-6 {% if intake.readiness_status != 'conditional' %}hidden{% endif %}">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Conditions for Approval</h3>
+        <p class="text-sm text-gray-500 mb-4">What conditions must be met for full approval?</p>
+
+        <div id="conditions-container" class="space-y-2">
+            {% set conditions = intake.conditions_for_approval or [] %}
+            {% if conditions %}
+                {% for condition in conditions %}
+                <div class="condition-item flex items-center space-x-2">
+                    <input type="text"
+                           name="conditions_for_approval[]"
+                           value="{{ condition }}"
+                           placeholder="Enter condition..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-gray-400 hover:text-red-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="condition-item flex items-center space-x-2">
+                    <input type="text"
+                           name="conditions_for_approval[]"
+                           placeholder="Enter condition..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-gray-400 hover:text-red-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="button"
+                onclick="addCondition()"
+                class="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Condition
+        </button>
+    </div>
+
+    <!-- Restrictions -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Restrictions</h3>
+        <p class="text-sm text-gray-500 mb-4">Any restrictions that apply to this AI system's use:</p>
+
+        <div id="restrictions-container" class="space-y-2">
+            {% set restrictions = intake.restrictions or [] %}
+            {% if restrictions %}
+                {% for restriction in restrictions %}
+                <div class="restriction-item flex items-center space-x-2">
+                    <input type="text"
+                           name="restrictions[]"
+                           value="{{ restriction }}"
+                           placeholder="Enter restriction..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-gray-400 hover:text-red-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="restriction-item flex items-center space-x-2">
+                    <input type="text"
+                           name="restrictions[]"
+                           placeholder="e.g., No customer PII"
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-gray-400 hover:text-red-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="button"
+                onclick="addRestriction()"
+                class="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Restriction
+        </button>
+    </div>
+
+    <!-- Recommended Phase -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Recommended Phase</h3>
+        <p class="text-sm text-gray-500 mb-4">What deployment phase is recommended?</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {% set phase_options = [
+                ('pilot_continuation', 'Continue Pilot', 'Continue limited deployment while addressing gaps'),
+                ('governance_design', 'Governance Design', 'Focus on establishing governance framework'),
+                ('expansion', 'Expansion Ready', 'Ready for broader deployment')
+            ] %}
+            {% for value, label, desc in phase_options %}
+            <label class="flex flex-col p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                         {% if intake.recommended_phase == value %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                <input type="radio"
+                       name="recommended_phase"
+                       value="{{ value }}"
+                       {% if intake.recommended_phase == value %}checked{% endif %}
+                       class="sr-only">
+                <span class="font-medium text-gray-900">{{ label }}</span>
+                <span class="text-xs text-gray-500 mt-1">{{ desc }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Readiness Notes -->
+    <div class="border-t pt-6">
+        <label for="readiness_notes" class="block text-sm font-medium text-gray-700 mb-1">
+            Additional Notes
+        </label>
+        <textarea id="readiness_notes"
+                  name="readiness_notes"
+                  rows="4"
+                  placeholder="Any additional notes about the readiness determination..."
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.readiness_notes or '' }}</textarea>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Readiness Decision Framework</h4>
+        <div class="text-sm text-gray-600 space-y-2">
+            <div class="flex items-start">
+                <span class="w-3 h-3 rounded-full bg-green-500 mr-2 mt-1"></span>
+                <div>
+                    <strong>Approved:</strong> All sections complete, no blocking risks, governance in place
+                </div>
+            </div>
+            <div class="flex items-start">
+                <span class="w-3 h-3 rounded-full bg-yellow-500 mr-2 mt-1"></span>
+                <div>
+                    <strong>Conditional:</strong> Acceptable risks but specific conditions must be tracked
+                </div>
+            </div>
+            <div class="flex items-start">
+                <span class="w-3 h-3 rounded-full bg-red-500 mr-2 mt-1"></span>
+                <div>
+                    <strong>Not Ready:</strong> Blocking issues exist that must be resolved first
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide conditions section based on readiness status
+document.querySelectorAll('input[name="readiness_status"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const conditionsSection = document.getElementById('conditions-section');
+        if (this.value === 'conditional') {
+            conditionsSection.classList.remove('hidden');
+        } else {
+            conditionsSection.classList.add('hidden');
+        }
+    });
+});
+
+function addCondition() {
+    const container = document.getElementById('conditions-container');
+    const newCondition = document.createElement('div');
+    newCondition.className = 'condition-item flex items-center space-x-2';
+    newCondition.innerHTML = `
+        <input type="text" name="conditions_for_approval[]" placeholder="Enter condition..."
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <button type="button" onclick="this.parentElement.remove()" class="p-2 text-gray-400 hover:text-red-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    `;
+    container.appendChild(newCondition);
+}
+
+function addRestriction() {
+    const container = document.getElementById('restrictions-container');
+    const newRestriction = document.createElement('div');
+    newRestriction.className = 'restriction-item flex items-center space-x-2';
+    newRestriction.innerHTML = `
+        <input type="text" name="restrictions[]" placeholder="Enter restriction..."
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <button type="button" onclick="this.parentElement.remove()" class="p-2 text-gray-400 hover:text-red-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    `;
+    container.appendChild(newRestriction);
+}
+</script>
+{% endblock %}

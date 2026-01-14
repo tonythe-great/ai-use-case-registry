@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Intake - AI Governance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/intake" class="flex items-center space-x-3">
+                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold text-gray-900">Review & Submit</h1>
+                        </div>
+                    </a>
+                </div>
+                <a href="/intake/{{ intake.id }}/step/1" class="text-sm text-gray-600 hover:text-gray-900">
+                    Back to Wizard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- System Header -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ intake.system_name or 'Untitled AI System' }}</h2>
+                    <p class="text-gray-500 mt-1">{{ intake.business_purpose or 'No description provided' }}</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if intake.readiness_status == 'approved' %}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">Approved</span>
+                    {% elif intake.readiness_status == 'conditional' %}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800">Conditional</span>
+                    {% elif intake.readiness_status == 'not_ready' %}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800">Not Ready</span>
+                    {% else %}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-800">Pending Review</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Completion -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Section Completion</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                {% set section_names = {
+                    '1': 'Inventory', '2': 'Decision', '3': 'Data', '4': 'Ownership', '5': 'Regulatory',
+                    '6': 'Monitoring', '7': 'Risks', '8': 'Artifacts', '9': 'Readiness', '10': 'Actions'
+                } %}
+                {% for num in range(1, 11) %}
+                {% set is_complete = section_completion.get(num|string, false) %}
+                <a href="/intake/{{ intake.id }}/step/{{ num }}"
+                   class="flex items-center justify-between p-3 rounded-lg border transition-colors
+                          {% if is_complete %}bg-green-50 border-green-200{% else %}bg-gray-50 border-gray-200 hover:border-blue-300{% endif %}">
+                    <span class="text-sm font-medium {% if is_complete %}text-green-800{% else %}text-gray-700{% endif %}">
+                        {{ num }}. {{ section_names[num|string] }}
+                    </span>
+                    {% if is_complete %}
+                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    {% else %}
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Key Information Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Basic Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                <dl class="space-y-3">
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Build vs Buy</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.build_vs_buy|default('Not specified')|title }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Vendor</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.vendor_name|default('N/A') }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Deployment Status</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.deployment_status|default('Not specified')|replace('_', ' ')|title }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">User Count</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.user_count|default('Not specified') }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Human Oversight</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.human_in_the_loop|default('Not specified')|replace('_', ' ')|title }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Ownership -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Ownership</h3>
+                <dl class="space-y-3">
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Approving Authority</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.approving_authority|default('Not specified') }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Business Owner</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.business_owner|default('Not specified') }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-sm text-gray-500">Technical Owner</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ intake.technical_owner|default('Not specified') }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Risk Summary -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Risk & Action Summary</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl font-bold text-gray-900">{{ intake.risk_assessments|length }}</div>
+                    <div class="text-sm text-gray-500">Risks Identified</div>
+                </div>
+                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="text-3xl font-bold text-yellow-600">
+                        {{ intake.risk_assessments|selectattr('residual_risk_level', 'eq', 'high')|list|length }}
+                    </div>
+                    <div class="text-sm text-gray-500">High Risks</div>
+                </div>
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-600">{{ intake.required_artifacts|length }}</div>
+                    <div class="text-sm text-gray-500">Required Artifacts</div>
+                </div>
+                <div class="text-center p-4 bg-red-50 rounded-lg">
+                    <div class="text-3xl font-bold text-red-600">
+                        {{ intake.action_items|selectattr('urgency_level', 'eq', 'immediate')|list|length }}
+                    </div>
+                    <div class="text-sm text-gray-500">Immediate Actions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restrictions & Conditions -->
+        {% if intake.restrictions or intake.conditions_for_approval %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            {% if intake.conditions_for_approval %}
+            <div class="mb-4">
+                <h4 class="text-sm font-semibold text-yellow-800 mb-2">Conditions for Approval</h4>
+                <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                    {% for condition in intake.conditions_for_approval %}
+                    <li>{{ condition }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if intake.restrictions %}
+            <div>
+                <h4 class="text-sm font-semibold text-red-800 mb-2">Restrictions</h4>
+                <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                    {% for restriction in intake.restrictions %}
+                    <li>{{ restriction }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Submit Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Ready to Submit?</h3>
+                    <p class="text-sm text-gray-500 mt-1">Once submitted, this intake will be reviewed by the governance team.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="/intake/{{ intake.id }}/step/1"
+                       class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Continue Editing
+                    </a>
+                    <button type="button"
+                            onclick="submitIntake()"
+                            class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                        Submit Intake
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    async function submitIntake() {
+        if (!confirm('Are you sure you want to submit this intake for review?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/intakes/{{ intake.id }}/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                window.location.href = '/intake/{{ intake.id }}/report';
+            } else {
+                const error = await response.json();
+                alert('Failed to submit: ' + (error.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to submit intake');
+        }
+    }
+    </script>
+</body>
+</html>

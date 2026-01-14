@@ -1,0 +1,260 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 3: Data Sensitivity - AI Governance Intake{% endblock %}
+
+{% block step_title %}Data Sensitivity & Flow{% endblock %}
+{% block step_description %}What data types are used and how data flows through the system.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-8">
+    <!-- Approved Data Types -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Approved Data Types
+        </label>
+        <p class="text-sm text-gray-500 mb-3">Select data types that are approved for use with this AI system:</p>
+
+        {% set approved_data = intake.approved_data_types or [] %}
+
+        <!-- Low Risk -->
+        <div class="mb-4">
+            <h4 class="text-xs font-semibold text-green-700 uppercase mb-2 flex items-center">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Low Sensitivity
+            </h4>
+            <div class="grid grid-cols-2 gap-2">
+                {% set low_risk_data = ['Public Information', 'Marketing Content', 'Product Documentation', 'General Business Data'] %}
+                {% for dtype in low_risk_data %}
+                <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:border-green-500 transition-colors
+                             {% if dtype in approved_data %}border-green-500 bg-green-50{% else %}border-gray-200{% endif %}">
+                    <input type="checkbox"
+                           name="approved_data_types[]"
+                           value="{{ dtype }}"
+                           {% if dtype in approved_data %}checked{% endif %}
+                           class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                    <span class="ml-2 text-sm text-gray-700">{{ dtype }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Medium Risk -->
+        <div class="mb-4">
+            <h4 class="text-xs font-semibold text-yellow-700 uppercase mb-2 flex items-center">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                Medium Sensitivity
+            </h4>
+            <div class="grid grid-cols-2 gap-2">
+                {% set medium_risk_data = ['Internal Communications', 'Employee Names/Emails', 'Business Strategies', 'Non-public Financial Data', 'Vendor Information', 'Project Details'] %}
+                {% for dtype in medium_risk_data %}
+                <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:border-yellow-500 transition-colors
+                             {% if dtype in approved_data %}border-yellow-500 bg-yellow-50{% else %}border-gray-200{% endif %}">
+                    <input type="checkbox"
+                           name="approved_data_types[]"
+                           value="{{ dtype }}"
+                           {% if dtype in approved_data %}checked{% endif %}
+                           class="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                    <span class="ml-2 text-sm text-gray-700">{{ dtype }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- High Risk -->
+        <div>
+            <h4 class="text-xs font-semibold text-red-700 uppercase mb-2 flex items-center">
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                High Sensitivity (Requires Justification)
+            </h4>
+            <div class="grid grid-cols-2 gap-2">
+                {% set high_risk_data = ['Customer PII', 'Employee PII', 'Source Code', 'Financial Records', 'Legal Documents', 'Healthcare Data'] %}
+                {% for dtype in high_risk_data %}
+                <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:border-red-500 transition-colors
+                             {% if dtype in approved_data %}border-red-500 bg-red-50{% else %}border-gray-200{% endif %}">
+                    <input type="checkbox"
+                           name="approved_data_types[]"
+                           value="{{ dtype }}"
+                           {% if dtype in approved_data %}checked{% endif %}
+                           class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <span class="ml-2 text-sm text-gray-700">{{ dtype }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Prohibited Data Types -->
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <label class="block text-sm font-medium text-red-800 mb-2">
+            Prohibited Data Types
+        </label>
+        <p class="text-sm text-red-600 mb-3">Data that must NEVER be used with this AI system:</p>
+
+        {% set prohibited_data = intake.prohibited_data_types or [] %}
+        <div class="grid grid-cols-2 gap-2">
+            {% set prohibited_options = ['Social Security Numbers', 'Credit Card Numbers', 'Passwords/Credentials', 'HIPAA Protected Data', 'CUI/Classified Data', 'Trade Secrets'] %}
+            {% for dtype in prohibited_options %}
+            <label class="flex items-center p-2 bg-white border rounded-lg cursor-pointer hover:border-red-500 transition-colors
+                         {% if dtype in prohibited_data %}border-red-500{% else %}border-red-200{% endif %}">
+                <input type="checkbox"
+                       name="prohibited_data_types[]"
+                       value="{{ dtype }}"
+                       {% if dtype in prohibited_data %}checked{% endif %}
+                       class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                <span class="ml-2 text-sm text-gray-700">{{ dtype }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- User Awareness -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">User Awareness & Training</h3>
+
+        <div class="space-y-4">
+            <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                         {% if intake.user_awareness_training %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                <input type="checkbox"
+                       name="user_awareness_training"
+                       value="true"
+                       {% if intake.user_awareness_training %}checked{% endif %}
+                       class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <div class="ml-3">
+                    <span class="font-medium text-gray-900">User Training Provided</span>
+                    <p class="text-sm text-gray-500">Users receive training on appropriate data handling with this AI system</p>
+                </div>
+            </label>
+
+            <label class="flex items-start p-4 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                         {% if intake.user_awareness_attestation %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                <input type="checkbox"
+                       name="user_awareness_attestation"
+                       value="true"
+                       {% if intake.user_awareness_attestation %}checked{% endif %}
+                       class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <div class="ml-3">
+                    <span class="font-medium text-gray-900">User Attestation Required</span>
+                    <p class="text-sm text-gray-500">Users must acknowledge and agree to data handling policies</p>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Technical Prevention Measures -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Technical Prevention Measures
+        </label>
+        <p class="text-sm text-gray-500 mb-3">Select technical controls in place to prevent data misuse:</p>
+
+        {% set prevention_measures = intake.technical_prevention_measures or [] %}
+        <div class="grid grid-cols-1 gap-2">
+            {% set prevention_options = [
+                ('dlp', 'Data Loss Prevention (DLP)', 'Technical controls that detect and block sensitive data'),
+                ('content_filtering', 'Content Filtering', 'Filters that scan inputs for prohibited content'),
+                ('access_controls', 'Access Controls', 'Role-based access limiting who can use the system'),
+                ('audit_logging', 'Audit Logging', 'All interactions are logged for review'),
+                ('encryption', 'Encryption', 'Data is encrypted in transit and at rest'),
+                ('anonymization', 'Data Anonymization', 'PII is masked or removed before processing')
+            ] %}
+            {% for value, label, desc in prevention_options %}
+            <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                         {% if value in prevention_measures %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                <input type="checkbox"
+                       name="technical_prevention_measures[]"
+                       value="{{ value }}"
+                       {% if value in prevention_measures %}checked{% endif %}
+                       class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <div class="ml-3">
+                    <span class="font-medium text-gray-900">{{ label }}</span>
+                    <p class="text-sm text-gray-500">{{ desc }}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Data Retention -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Data Retention</h3>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Data Retention Policy
+            </label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {% set retention_options = [
+                    ('zero_retention', 'No Retention', 'Data deleted immediately'),
+                    ('30_days', '30 Days', 'Standard short-term'),
+                    ('90_days', '90 Days', 'Extended short-term'),
+                    ('1_year', '1 Year', 'Long-term retention'),
+                    ('indefinite', 'Indefinite', 'Retained until deleted')
+                ] %}
+                {% for value, label, desc in retention_options %}
+                <label class="flex flex-col p-3 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors text-center
+                             {% if intake.data_retention_policy == value %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                    <input type="radio"
+                           name="data_retention_policy"
+                           value="{{ value }}"
+                           {% if intake.data_retention_policy == value %}checked{% endif %}
+                           class="sr-only">
+                    <span class="font-medium text-gray-900">{{ label }}</span>
+                    <span class="text-xs text-gray-500">{{ desc }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label for="data_retention_details" class="block text-sm font-medium text-gray-700 mb-1">
+                Retention Details
+            </label>
+            <textarea id="data_retention_details"
+                      name="data_retention_details"
+                      rows="2"
+                      placeholder="Any additional details about data retention..."
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.data_retention_details or '' }}</textarea>
+        </div>
+    </div>
+
+    <!-- Data Egress Risk -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Data Egress Risk
+        </label>
+        <p class="text-sm text-gray-500 mb-3">Risk of data leaving the organization through this AI system:</p>
+
+        <div class="grid grid-cols-2 gap-3">
+            {% set egress_options = [
+                ('none', 'None', 'No external data flow', 'bg-green-100 text-green-800 border-green-200'),
+                ('low', 'Low', 'Minimal external exposure', 'bg-blue-100 text-blue-800 border-blue-200'),
+                ('medium', 'Medium', 'Some external data sharing', 'bg-yellow-100 text-yellow-800 border-yellow-200'),
+                ('high', 'High', 'Significant external flow', 'bg-red-100 text-red-800 border-red-200')
+            ] %}
+            {% for value, label, desc, classes in egress_options %}
+            <label class="flex flex-col p-3 border-2 rounded-lg cursor-pointer transition-colors
+                         {% if intake.data_egress_risk == value %}{{ classes }}{% else %}border-gray-200 hover:border-gray-300{% endif %}">
+                <input type="radio"
+                       name="data_egress_risk"
+                       value="{{ value }}"
+                       {% if intake.data_egress_risk == value %}checked{% endif %}
+                       class="sr-only">
+                <span class="font-medium">{{ label }}</span>
+                <span class="text-xs opacity-75">{{ desc }}</span>
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="mt-4">
+            <label for="data_egress_notes" class="block text-sm font-medium text-gray-700 mb-1">
+                Egress Notes
+            </label>
+            <textarea id="data_egress_notes"
+                      name="data_egress_notes"
+                      rows="2"
+                      placeholder="Describe data flows outside the organization..."
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.data_egress_notes or '' }}</textarea>
+        </div>
+    </div>
+</div>
+{% endblock %}

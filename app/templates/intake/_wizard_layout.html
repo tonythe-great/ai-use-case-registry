@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Governance Intake{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .step-circle {
+            transition: all 0.2s ease;
+        }
+        .step-line {
+            transition: all 0.2s ease;
+        }
+        .autosave-indicator {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/intake" class="flex items-center space-x-3">
+                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold text-gray-900">AI Governance Intake</h1>
+                        </div>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Autosave indicator -->
+                    <div id="autosave-status" class="text-sm text-gray-500 autosave-indicator">
+                        <span id="save-text">All changes saved</span>
+                    </div>
+                    <a href="/intake" class="text-sm text-gray-600 hover:text-gray-900">
+                        Exit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="bg-white border-b border-gray-200 py-4">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="flex items-center justify-between">
+                {% set step_names = {
+                    1: "Inventory",
+                    2: "Decision",
+                    3: "Data",
+                    4: "Ownership",
+                    5: "Regulatory",
+                    6: "Monitoring",
+                    7: "Risks",
+                    8: "Artifacts",
+                    9: "Readiness",
+                    10: "Actions"
+                } %}
+                {% for step in range(1, 11) %}
+                <div class="flex items-center {% if not loop.last %}flex-1{% endif %}">
+                    <!-- Step circle -->
+                    <a href="/intake/{{ intake.id }}/step/{{ step }}"
+                       class="flex flex-col items-center group">
+                        <div class="step-circle w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+                            {% if step < current_step %}
+                                bg-blue-600 text-white
+                            {% elif step == current_step %}
+                                bg-blue-600 text-white ring-4 ring-blue-100
+                            {% elif section_completion.get(step|string, false) %}
+                                bg-green-500 text-white
+                            {% else %}
+                                bg-gray-200 text-gray-600 group-hover:bg-gray-300
+                            {% endif %}">
+                            {% if step < current_step or section_completion.get(step|string, false) %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            {% else %}
+                                {{ step }}
+                            {% endif %}
+                        </div>
+                        <span class="text-xs mt-1 text-gray-500 hidden sm:block">{{ step_names[step] }}</span>
+                    </a>
+                    <!-- Connecting line -->
+                    {% if not loop.last %}
+                    <div class="step-line flex-1 h-0.5 mx-2
+                        {% if step < current_step %}
+                            bg-blue-600
+                        {% else %}
+                            bg-gray-200
+                        {% endif %}">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        <form id="intake-form" class="space-y-6">
+            <!-- Step Header -->
+            <div class="mb-6">
+                <div class="flex items-center space-x-2 text-sm text-blue-600 mb-2">
+                    <span>Step {{ current_step }} of {{ total_steps }}</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">{% block step_title %}{% endblock %}</h2>
+                <p class="text-gray-600 mt-1">{% block step_description %}{% endblock %}</p>
+            </div>
+
+            <!-- Form Content (injected by child templates) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                {% block form_content %}{% endblock %}
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex items-center justify-between pt-4">
+                {% if current_step > 1 %}
+                <a href="/intake/{{ intake.id }}/step/{{ current_step - 1 }}"
+                   class="inline-flex items-center px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if current_step < total_steps %}
+                <a href="/intake/{{ intake.id }}/step/{{ current_step + 1 }}"
+                   id="next-btn"
+                   class="inline-flex items-center px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                    Next
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                {% else %}
+                <a href="/intake/{{ intake.id }}/review"
+                   class="inline-flex items-center px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
+                    Review & Submit
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </main>
+
+    <!-- Autosave Script -->
+    <script>
+    (function() {
+        const form = document.getElementById('intake-form');
+        const saveStatus = document.getElementById('save-text');
+        const intakeId = {{ intake.id }};
+        const currentStep = {{ current_step }};
+        let saveTimeout = null;
+        let lastSaveTime = null;
+
+        // Map steps to section numbers for API
+        const stepToSection = {
+            1: 'section_1',
+            2: 'section_2',
+            3: 'section_3',
+            4: 'section_4',
+            5: 'section_5',
+            6: 'section_6',
+            7: null,  // Risks - handled separately
+            8: null,  // Artifacts - handled separately
+            9: 'section_9',
+            10: null  // Actions - handled separately
+        };
+
+        function showSaving() {
+            saveStatus.textContent = 'Saving...';
+            saveStatus.classList.add('text-yellow-600');
+            saveStatus.classList.remove('text-gray-500', 'text-green-600');
+        }
+
+        function showSaved() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            saveStatus.textContent = `Saved at ${timeStr}`;
+            saveStatus.classList.add('text-green-600');
+            saveStatus.classList.remove('text-gray-500', 'text-yellow-600');
+            lastSaveTime = now;
+        }
+
+        function showError() {
+            saveStatus.textContent = 'Save failed - will retry';
+            saveStatus.classList.add('text-red-600');
+            saveStatus.classList.remove('text-gray-500', 'text-green-600', 'text-yellow-600');
+        }
+
+        function collectFormData() {
+            const data = {};
+            const formData = new FormData(form);
+
+            for (let [key, value] of formData.entries()) {
+                // Handle checkboxes and multi-select
+                if (form.elements[key] && form.elements[key].type === 'checkbox') {
+                    if (!data[key]) data[key] = [];
+                    if (form.elements[key].checked) {
+                        data[key].push(value);
+                    }
+                } else if (key.endsWith('[]')) {
+                    // Array fields
+                    const cleanKey = key.replace('[]', '');
+                    if (!data[cleanKey]) data[cleanKey] = [];
+                    data[cleanKey].push(value);
+                } else if (value === 'true') {
+                    data[key] = true;
+                } else if (value === 'false') {
+                    data[key] = false;
+                } else if (value !== '') {
+                    // Convert numeric strings to numbers
+                    const num = Number(value);
+                    data[key] = !isNaN(num) && value.trim() !== '' && key !== 'system_name' && key !== 'business_purpose' && !key.includes('email') && !key.includes('name') && !key.includes('owner') && !key.includes('details') && !key.includes('description') && !key.includes('constraints') && !key.includes('notes') && !key.includes('path') ? num : value;
+                }
+            }
+
+            // Handle checkboxes that need to be arrays
+            const checkboxGroups = form.querySelectorAll('input[type="checkbox"]');
+            const checkedGroups = {};
+            checkboxGroups.forEach(cb => {
+                const name = cb.name.replace('[]', '');
+                if (!checkedGroups[name]) {
+                    checkedGroups[name] = [];
+                }
+                if (cb.checked) {
+                    checkedGroups[name].push(cb.value);
+                }
+            });
+
+            // Merge checkbox arrays
+            Object.keys(checkedGroups).forEach(key => {
+                if (checkedGroups[key].length > 0 || form.querySelector(`input[name="${key}"], input[name="${key}[]"]`)) {
+                    data[key] = checkedGroups[key];
+                }
+            });
+
+            return data;
+        }
+
+        async function saveData() {
+            const sectionKey = stepToSection[currentStep];
+            if (!sectionKey) {
+                // Steps 7, 8, 10 handle their own saving
+                showSaved();
+                return;
+            }
+
+            showSaving();
+            const formData = collectFormData();
+
+            const payload = {
+                [sectionKey]: formData,
+                current_step: currentStep
+            };
+
+            try {
+                const response = await fetch(`/api/intakes/${intakeId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    showSaved();
+                } else {
+                    console.error('Save failed:', await response.text());
+                    showError();
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                showError();
+            }
+        }
+
+        function debouncedSave() {
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+            saveTimeout = setTimeout(saveData, 1500);
+        }
+
+        // Listen for all input changes
+        form.addEventListener('input', debouncedSave);
+        form.addEventListener('change', debouncedSave);
+
+        // Save before leaving page
+        window.addEventListener('beforeunload', function(e) {
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+                // Synchronous save attempt
+                const sectionKey = stepToSection[currentStep];
+                if (sectionKey) {
+                    const formData = collectFormData();
+                    navigator.sendBeacon(`/api/intakes/${intakeId}`, JSON.stringify({
+                        [sectionKey]: formData
+                    }));
+                }
+            }
+        });
+
+        // Save when clicking next/previous
+        document.querySelectorAll('a[href*="/step/"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                    saveData();
+                }
+            });
+        });
+
+        // Periodic backup save every 30 seconds
+        setInterval(function() {
+            if (lastSaveTime && (new Date() - lastSaveTime) > 30000) {
+                saveData();
+            }
+        }, 30000);
+    })();
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

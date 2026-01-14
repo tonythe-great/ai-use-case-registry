@@ -1,0 +1,290 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 7: Risk Assessment - AI Governance Intake{% endblock %}
+
+{% block step_title %}Residual Risk Assessment{% endblock %}
+{% block step_description %}Identify and assess risks that remain after mitigations are applied.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-6">
+    <!-- Info Banner -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <svg class="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="text-sm text-blue-800">
+                    Document risks that may still exist even after applying mitigations. This helps ensure proper governance oversight.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Categories -->
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Identified Risks</h3>
+
+        <div id="risks-container" class="space-y-4">
+            {% set risks = intake.risk_assessments or [] %}
+            {% if risks %}
+                {% for risk in risks %}
+                <div class="risk-item border border-gray-200 rounded-lg p-4" data-risk-id="{{ risk.id }}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <select name="risk_category_{{ risk.id }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select risk category...</option>
+                                {% set categories = [
+                                    ('environment_segregation', 'Environment Segregation'),
+                                    ('identity_trust', 'Identity & Trust'),
+                                    ('data_exposure', 'Data Exposure'),
+                                    ('model_reliability', 'Model Reliability'),
+                                    ('compliance_gap', 'Compliance Gap'),
+                                    ('vendor_dependency', 'Vendor Dependency'),
+                                    ('access_control', 'Access Control'),
+                                    ('audit_visibility', 'Audit Visibility'),
+                                    ('other', 'Other')
+                                ] %}
+                                {% for value, label in categories %}
+                                <option value="{{ value }}" {% if risk.risk_category == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="button"
+                                onclick="deleteRisk({{ risk.id }})"
+                                class="ml-3 p-2 text-gray-400 hover:text-red-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Risk Description</label>
+                            <textarea name="risk_description_{{ risk.id }}"
+                                      rows="2"
+                                      placeholder="Describe the specific risk..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ risk.risk_description or '' }}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Mitigation Status</label>
+                                <select name="mitigation_status_{{ risk.id }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    {% set statuses = [('complete', 'Complete'), ('in_progress', 'In Progress'), ('planned', 'Planned'), ('not_planned', 'Not Planned')] %}
+                                    {% for value, label in statuses %}
+                                    <option value="{{ value }}" {% if risk.mitigation_status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Residual Risk Level</label>
+                                <select name="residual_risk_level_{{ risk.id }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="low" {% if risk.residual_risk_level == 'low' %}selected{% endif %}>Low</option>
+                                    <option value="medium" {% if risk.residual_risk_level == 'medium' %}selected{% endif %}>Medium</option>
+                                    <option value="high" {% if risk.residual_risk_level == 'high' %}selected{% endif %}>High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mitigation Details</label>
+                            <textarea name="mitigation_details_{{ risk.id }}"
+                                      rows="2"
+                                      placeholder="What mitigations have been applied?"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ risk.mitigation_details or '' }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Residual Exposure</label>
+                            <textarea name="residual_exposure_{{ risk.id }}"
+                                      rows="2"
+                                      placeholder="What risk remains after mitigation?"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ risk.residual_exposure or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Add Risk Button -->
+        <button type="button"
+                onclick="addNewRisk()"
+                class="mt-4 w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Risk Assessment
+        </button>
+    </div>
+
+    <!-- Risk Summary -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">Risk Categories Guide</h4>
+        <div class="text-sm text-gray-600 space-y-1">
+            <p><strong>Environment Segregation:</strong> Risk of data mixing between environments</p>
+            <p><strong>Identity & Trust:</strong> Risk related to authentication or authorization</p>
+            <p><strong>Data Exposure:</strong> Risk of sensitive data being exposed</p>
+            <p><strong>Model Reliability:</strong> Risk of AI producing incorrect outputs</p>
+            <p><strong>Compliance Gap:</strong> Risk of not meeting regulatory requirements</p>
+            <p><strong>Vendor Dependency:</strong> Risk from reliance on third-party AI provider</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const intakeId = {{ intake.id }};
+let tempRiskId = -1;
+
+async function addNewRisk() {
+    try {
+        const response = await fetch(`/api/intakes/${intakeId}/risks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                risk_category: '',
+                risk_description: '',
+                mitigation_status: 'planned',
+                residual_risk_level: 'medium'
+            })
+        });
+
+        if (response.ok) {
+            const risk = await response.json();
+            addRiskToDOM(risk.id);
+        } else {
+            alert('Failed to add risk');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to add risk');
+    }
+}
+
+function addRiskToDOM(riskId) {
+    const container = document.getElementById('risks-container');
+    const riskHtml = `
+        <div class="risk-item border border-gray-200 rounded-lg p-4" data-risk-id="${riskId}">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1">
+                    <select name="risk_category_${riskId}"
+                            onchange="updateRisk(${riskId})"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select risk category...</option>
+                        <option value="environment_segregation">Environment Segregation</option>
+                        <option value="identity_trust">Identity & Trust</option>
+                        <option value="data_exposure">Data Exposure</option>
+                        <option value="model_reliability">Model Reliability</option>
+                        <option value="compliance_gap">Compliance Gap</option>
+                        <option value="vendor_dependency">Vendor Dependency</option>
+                        <option value="access_control">Access Control</option>
+                        <option value="audit_visibility">Audit Visibility</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="button" onclick="deleteRisk(${riskId})" class="ml-3 p-2 text-gray-400 hover:text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Risk Description</label>
+                    <textarea name="risk_description_${riskId}" rows="2" placeholder="Describe the specific risk..."
+                              onchange="updateRisk(${riskId})"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mitigation Status</label>
+                        <select name="mitigation_status_${riskId}" onchange="updateRisk(${riskId})"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="complete">Complete</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="planned" selected>Planned</option>
+                            <option value="not_planned">Not Planned</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Residual Risk Level</label>
+                        <select name="residual_risk_level_${riskId}" onchange="updateRisk(${riskId})"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mitigation Details</label>
+                    <textarea name="mitigation_details_${riskId}" rows="2" placeholder="What mitigations have been applied?"
+                              onchange="updateRisk(${riskId})"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Residual Exposure</label>
+                    <textarea name="residual_exposure_${riskId}" rows="2" placeholder="What risk remains after mitigation?"
+                              onchange="updateRisk(${riskId})"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', riskHtml);
+}
+
+async function updateRisk(riskId) {
+    const data = {
+        risk_category: document.querySelector(`[name="risk_category_${riskId}"]`).value,
+        risk_description: document.querySelector(`[name="risk_description_${riskId}"]`).value,
+        mitigation_status: document.querySelector(`[name="mitigation_status_${riskId}"]`).value,
+        residual_risk_level: document.querySelector(`[name="residual_risk_level_${riskId}"]`).value,
+        mitigation_details: document.querySelector(`[name="mitigation_details_${riskId}"]`).value,
+        residual_exposure: document.querySelector(`[name="residual_exposure_${riskId}"]`).value
+    };
+
+    try {
+        await fetch(`/api/intakes/${intakeId}/risks/${riskId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+    } catch (error) {
+        console.error('Error updating risk:', error);
+    }
+}
+
+async function deleteRisk(riskId) {
+    if (!confirm('Delete this risk assessment?')) return;
+
+    try {
+        const response = await fetch(`/api/intakes/${intakeId}/risks/${riskId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            document.querySelector(`[data-risk-id="${riskId}"]`).remove();
+        } else {
+            alert('Failed to delete risk');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to delete risk');
+    }
+}
+
+// Add onchange handlers to existing risks
+document.querySelectorAll('.risk-item').forEach(item => {
+    const riskId = item.dataset.riskId;
+    item.querySelectorAll('select, textarea').forEach(el => {
+        el.addEventListener('change', () => updateRisk(riskId));
+    });
+});
+</script>
+{% endblock %}

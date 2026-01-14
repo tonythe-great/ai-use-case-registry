@@ -1,0 +1,228 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 5: Regulatory Context - AI Governance Intake{% endblock %}
+
+{% block step_title %}Regulatory & Contractual Context{% endblock %}
+{% block step_description %}Regulatory requirements and contractual obligations that apply to this AI system.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-8">
+    <!-- Federal Contracts -->
+    <div>
+        <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                     {% if intake.federal_contracts %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+            <input type="checkbox"
+                   name="federal_contracts"
+                   value="true"
+                   {% if intake.federal_contracts %}checked{% endif %}
+                   class="mt-0.5 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                   onchange="toggleFederalDetails(this)">
+            <div class="ml-3">
+                <span class="font-medium text-gray-900">Federal Contract Work</span>
+                <p class="text-sm text-gray-500">This AI system will be used in connection with U.S. federal government contracts</p>
+            </div>
+        </label>
+
+        <!-- Federal Contract Details (shown when checked) -->
+        <div id="federal-details" class="mt-4 space-y-4 {% if not intake.federal_contracts %}hidden{% endif %}">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p class="text-sm text-yellow-800 flex items-start">
+                    <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Federal contracts may have specific AI restrictions. Additional review is required.
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Applicable Requirements
+                </label>
+                {% set contract_types = intake.federal_contract_types or [] %}
+                <div class="grid grid-cols-2 gap-2">
+                    {% set federal_options = ['DFARS', 'CMMC', 'FedRAMP', 'ITAR', 'EAR', 'NIST 800-171', 'FAR 52.204-21', 'Other'] %}
+                    {% for option in federal_options %}
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                                 {% if option in contract_types %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                        <input type="checkbox"
+                               name="federal_contract_types[]"
+                               value="{{ option }}"
+                               {% if option in contract_types %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">{{ option }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <label for="federal_contract_details" class="block text-sm font-medium text-gray-700 mb-1">
+                    Contract Details
+                </label>
+                <textarea id="federal_contract_details"
+                          name="federal_contract_details"
+                          rows="2"
+                          placeholder="Describe specific contract requirements or restrictions..."
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.federal_contract_details or '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tenant Segregation -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Data Segregation</h3>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Is tenant/customer data segregation required?
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+                <label class="flex flex-col p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors text-center
+                             {% if intake.tenant_segregation == true %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                    <input type="radio"
+                           name="tenant_segregation"
+                           value="true"
+                           {% if intake.tenant_segregation == true %}checked{% endif %}
+                           class="sr-only">
+                    <span class="font-medium text-gray-900">Yes</span>
+                    <span class="text-sm text-gray-500">Data must be segregated</span>
+                </label>
+                <label class="flex flex-col p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors text-center
+                             {% if intake.tenant_segregation == false %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                    <input type="radio"
+                           name="tenant_segregation"
+                           value="false"
+                           {% if intake.tenant_segregation == false %}checked{% endif %}
+                           class="sr-only">
+                    <span class="font-medium text-gray-900">No</span>
+                    <span class="text-sm text-gray-500">Not required</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label for="tenant_segregation_details" class="block text-sm font-medium text-gray-700 mb-1">
+                Segregation Details
+            </label>
+            <textarea id="tenant_segregation_details"
+                      name="tenant_segregation_details"
+                      rows="2"
+                      placeholder="Describe how data segregation is implemented..."
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.tenant_segregation_details or '' }}</textarea>
+        </div>
+    </div>
+
+    <!-- Contract Clause Restrictions -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Contract Restrictions</h3>
+        <p class="text-sm text-gray-500 mb-4">Are there specific contractual clauses that restrict AI usage?</p>
+
+        {% set clause_restrictions = intake.contract_clause_restrictions or [] %}
+        <div class="space-y-2">
+            {% set restriction_options = [
+                ('no_ai_clause', 'No AI Usage Clause', 'Contract explicitly prohibits AI'),
+                ('ai_approval_required', 'AI Requires Approval', 'AI must be pre-approved by customer'),
+                ('data_processing_limits', 'Data Processing Limits', 'Restrictions on how data can be processed'),
+                ('subprocessor_restrictions', 'Subprocessor Restrictions', 'Limits on third-party AI services'),
+                ('audit_requirements', 'Audit Requirements', 'Customer has right to audit AI usage')
+            ] %}
+            {% for value, label, desc in restriction_options %}
+            <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                         {% if value in clause_restrictions %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                <input type="checkbox"
+                       name="contract_clause_restrictions[]"
+                       value="{{ value }}"
+                       {% if value in clause_restrictions %}checked{% endif %}
+                       class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <div class="ml-3">
+                    <span class="font-medium text-gray-900">{{ label }}</span>
+                    <p class="text-sm text-gray-500">{{ desc }}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Workforce Impact -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Impact Assessment</h3>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Workforce Impact
+                </label>
+                <p class="text-sm text-gray-500 mb-3">How does this AI affect employees or job functions?</p>
+
+                <div class="grid grid-cols-2 gap-2">
+                    {% set impact_levels = [
+                        ('none', 'None', 'No workforce impact'),
+                        ('minimal', 'Minimal', 'Minor efficiency gains'),
+                        ('moderate', 'Moderate', 'Noticeable changes to workflows'),
+                        ('significant', 'Significant', 'Major role changes')
+                    ] %}
+                    {% for value, label, desc in impact_levels %}
+                    <label class="flex flex-col p-3 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                                 {% if intake.workforce_impact == value %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                        <input type="radio"
+                               name="workforce_impact"
+                               value="{{ value }}"
+                               {% if intake.workforce_impact == value %}checked{% endif %}
+                               class="sr-only">
+                        <span class="font-medium text-gray-900">{{ label }}</span>
+                        <span class="text-xs text-gray-500">{{ desc }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-3">
+                    <textarea name="workforce_impact_details"
+                              rows="2"
+                              placeholder="Describe workforce impact..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.workforce_impact_details or '' }}</textarea>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Customer Impact
+                </label>
+                <p class="text-sm text-gray-500 mb-3">How does this AI affect external customers?</p>
+
+                <div class="grid grid-cols-2 gap-2">
+                    {% for value, label, desc in impact_levels %}
+                    <label class="flex flex-col p-3 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                                 {% if intake.customer_impact == value %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                        <input type="radio"
+                               name="customer_impact"
+                               value="{{ value }}"
+                               {% if intake.customer_impact == value %}checked{% endif %}
+                               class="sr-only">
+                        <span class="font-medium text-gray-900">{{ label }}</span>
+                        <span class="text-xs text-gray-500">{{ desc }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-3">
+                    <textarea name="customer_impact_details"
+                              rows="2"
+                              placeholder="Describe customer impact..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.customer_impact_details or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFederalDetails(checkbox) {
+    const details = document.getElementById('federal-details');
+    if (checkbox.checked) {
+        details.classList.remove('hidden');
+    } else {
+        details.classList.add('hidden');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,321 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 8: Governance Artifacts - AI Governance Intake{% endblock %}
+
+{% block step_title %}Governance Gaps & Required Artifacts{% endblock %}
+{% block step_description %}Identify governance gaps and artifacts needed to address them.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-6">
+    <!-- Identified Gaps -->
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Identified Governance Gaps</h3>
+        <p class="text-sm text-gray-500 mb-4">Select any governance gaps that have been identified:</p>
+
+        {% set current_gaps = intake.identified_gaps or [] %}
+        <div class="space-y-2">
+            {% set gap_options = [
+                ('no_incident_playbook', 'No Incident Response Playbook', 'No documented process for handling AI-related incidents'),
+                ('unclear_raci', 'Unclear RACI/Ownership', 'Roles and responsibilities not clearly defined'),
+                ('no_usage_guidance', 'No Usage Guidance', 'Users lack clear guidance on appropriate use'),
+                ('missing_monitoring', 'Missing Monitoring', 'No active monitoring of AI usage or outputs'),
+                ('no_training', 'No User Training', 'Users have not received training on the AI system'),
+                ('data_classification_gap', 'Data Classification Gap', 'Data types not clearly classified for AI use'),
+                ('vendor_assessment_gap', 'Vendor Assessment Gap', 'Vendor not fully assessed for security/compliance'),
+                ('policy_gap', 'Policy Gap', 'Organizational AI policies not established')
+            ] %}
+            {% for value, label, desc in gap_options %}
+            <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:border-yellow-500 transition-colors
+                         {% if value in current_gaps %}border-yellow-500 bg-yellow-50{% else %}border-gray-200{% endif %}">
+                <input type="checkbox"
+                       name="identified_gaps[]"
+                       value="{{ value }}"
+                       {% if value in current_gaps %}checked{% endif %}
+                       class="mt-0.5 h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                <div class="ml-3">
+                    <span class="font-medium text-gray-900">{{ label }}</span>
+                    <p class="text-sm text-gray-500">{{ desc }}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Required Artifacts -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Required Artifacts</h3>
+        <p class="text-sm text-gray-500 mb-4">Documents or deliverables needed to close governance gaps:</p>
+
+        <div id="artifacts-container" class="space-y-4">
+            {% set artifacts = intake.required_artifacts or [] %}
+            {% if artifacts %}
+                {% for artifact in artifacts %}
+                <div class="artifact-item border border-gray-200 rounded-lg p-4" data-artifact-id="{{ artifact.id }}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1 grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Artifact Type</label>
+                                <select name="artifact_type_{{ artifact.id }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    {% set types = [
+                                        ('incident_playbook', 'Incident Playbook'),
+                                        ('raci_assignment', 'RACI Assignment'),
+                                        ('usage_guidance', 'Usage Guidance'),
+                                        ('training_materials', 'Training Materials'),
+                                        ('risk_assessment', 'Risk Assessment'),
+                                        ('security_review', 'Security Review'),
+                                        ('policy_document', 'Policy Document'),
+                                        ('other', 'Other')
+                                    ] %}
+                                    {% for value, label in types %}
+                                    <option value="{{ value }}" {% if artifact.artifact_type == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                                <select name="artifact_status_{{ artifact.id }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="pending" {% if artifact.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="in_progress" {% if artifact.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="completed" {% if artifact.status == 'completed' %}selected{% endif %}>Completed</option>
+                                    <option value="waived" {% if artifact.status == 'waived' %}selected{% endif %}>Waived</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button"
+                                onclick="deleteArtifact({{ artifact.id }})"
+                                class="ml-3 p-2 text-gray-400 hover:text-red-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Artifact Name</label>
+                            <input type="text"
+                                   name="artifact_name_{{ artifact.id }}"
+                                   value="{{ artifact.artifact_name or '' }}"
+                                   placeholder="e.g., ChatGPT Incident Response Playbook"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Gap Being Addressed</label>
+                            <input type="text"
+                                   name="artifact_gap_{{ artifact.id }}"
+                                   value="{{ artifact.gap_description or '' }}"
+                                   placeholder="What gap does this artifact address?"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Owner</label>
+                                <input type="text"
+                                       name="artifact_owner_{{ artifact.id }}"
+                                       value="{{ artifact.owner or '' }}"
+                                       placeholder="Person responsible"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
+                                <input type="date"
+                                       name="artifact_due_{{ artifact.id }}"
+                                       value="{{ artifact.due_date.strftime('%Y-%m-%d') if artifact.due_date else '' }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Notes</label>
+                            <textarea name="artifact_notes_{{ artifact.id }}"
+                                      rows="2"
+                                      placeholder="Additional notes..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ artifact.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Add Artifact Button -->
+        <button type="button"
+                onclick="addNewArtifact()"
+                class="mt-4 w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Required Artifact
+        </button>
+    </div>
+
+    <!-- Artifact Types Guide -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">Common Artifact Types</h4>
+        <div class="text-sm text-gray-600 space-y-1">
+            <p><strong>Incident Playbook:</strong> Step-by-step guide for handling AI incidents</p>
+            <p><strong>RACI Assignment:</strong> Documented roles and responsibilities matrix</p>
+            <p><strong>Usage Guidance:</strong> Guidelines for appropriate AI system use</p>
+            <p><strong>Training Materials:</strong> Educational content for users</p>
+            <p><strong>Security Review:</strong> Security assessment documentation</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const intakeId = {{ intake.id }};
+
+async function addNewArtifact() {
+    try {
+        const response = await fetch(`/api/intakes/${intakeId}/artifacts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                artifact_name: '',
+                artifact_type: 'other',
+                status: 'pending'
+            })
+        });
+
+        if (response.ok) {
+            const artifact = await response.json();
+            addArtifactToDOM(artifact.id);
+        } else {
+            alert('Failed to add artifact');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to add artifact');
+    }
+}
+
+function addArtifactToDOM(artifactId) {
+    const container = document.getElementById('artifacts-container');
+    const artifactHtml = `
+        <div class="artifact-item border border-gray-200 rounded-lg p-4" data-artifact-id="${artifactId}">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Artifact Type</label>
+                        <select name="artifact_type_${artifactId}" onchange="updateArtifact(${artifactId})"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="incident_playbook">Incident Playbook</option>
+                            <option value="raci_assignment">RACI Assignment</option>
+                            <option value="usage_guidance">Usage Guidance</option>
+                            <option value="training_materials">Training Materials</option>
+                            <option value="risk_assessment">Risk Assessment</option>
+                            <option value="security_review">Security Review</option>
+                            <option value="policy_document">Policy Document</option>
+                            <option value="other" selected>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                        <select name="artifact_status_${artifactId}" onchange="updateArtifact(${artifactId})"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="pending" selected>Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="waived">Waived</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" onclick="deleteArtifact(${artifactId})" class="ml-3 p-2 text-gray-400 hover:text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Artifact Name</label>
+                    <input type="text" name="artifact_name_${artifactId}" placeholder="e.g., ChatGPT Incident Response Playbook"
+                           onchange="updateArtifact(${artifactId})"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Gap Being Addressed</label>
+                    <input type="text" name="artifact_gap_${artifactId}" placeholder="What gap does this artifact address?"
+                           onchange="updateArtifact(${artifactId})"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Owner</label>
+                        <input type="text" name="artifact_owner_${artifactId}" placeholder="Person responsible"
+                               onchange="updateArtifact(${artifactId})"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
+                        <input type="date" name="artifact_due_${artifactId}"
+                               onchange="updateArtifact(${artifactId})"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Notes</label>
+                    <textarea name="artifact_notes_${artifactId}" rows="2" placeholder="Additional notes..."
+                              onchange="updateArtifact(${artifactId})"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', artifactHtml);
+}
+
+async function updateArtifact(artifactId) {
+    const data = {
+        artifact_type: document.querySelector(`[name="artifact_type_${artifactId}"]`).value,
+        artifact_name: document.querySelector(`[name="artifact_name_${artifactId}"]`).value,
+        gap_description: document.querySelector(`[name="artifact_gap_${artifactId}"]`).value,
+        owner: document.querySelector(`[name="artifact_owner_${artifactId}"]`).value,
+        due_date: document.querySelector(`[name="artifact_due_${artifactId}"]`).value || null,
+        status: document.querySelector(`[name="artifact_status_${artifactId}"]`).value,
+        notes: document.querySelector(`[name="artifact_notes_${artifactId}"]`).value
+    };
+
+    try {
+        await fetch(`/api/intakes/${intakeId}/artifacts/${artifactId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+    } catch (error) {
+        console.error('Error updating artifact:', error);
+    }
+}
+
+async function deleteArtifact(artifactId) {
+    if (!confirm('Delete this artifact?')) return;
+
+    try {
+        const response = await fetch(`/api/intakes/${intakeId}/artifacts/${artifactId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            document.querySelector(`[data-artifact-id="${artifactId}"]`).remove();
+        } else {
+            alert('Failed to delete artifact');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to delete artifact');
+    }
+}
+
+// Add onchange handlers to existing artifacts
+document.querySelectorAll('.artifact-item').forEach(item => {
+    const artifactId = item.dataset.artifactId;
+    item.querySelectorAll('select, input, textarea').forEach(el => {
+        el.addEventListener('change', () => updateArtifact(artifactId));
+    });
+});
+</script>
+{% endblock %}

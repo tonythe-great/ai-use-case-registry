@@ -1,0 +1,257 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 6: Monitoring - AI Governance Intake{% endblock %}
+
+{% block step_title %}Monitoring, Logging & Incident Response{% endblock %}
+{% block step_description %}How AI usage is monitored and how incidents are handled.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-8">
+    <!-- Usage Logging -->
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Usage Logging</h3>
+
+        <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors mb-4
+                     {% if intake.usage_logging_enabled %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+            <input type="checkbox"
+                   name="usage_logging_enabled"
+                   value="true"
+                   {% if intake.usage_logging_enabled %}checked{% endif %}
+                   class="mt-0.5 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                   onchange="toggleLoggingDetails(this)">
+            <div class="ml-3">
+                <span class="font-medium text-gray-900">Usage Logging Enabled</span>
+                <p class="text-sm text-gray-500">AI interactions are logged for review and audit purposes</p>
+            </div>
+        </label>
+
+        <div id="logging-details" class="space-y-4 {% if not intake.usage_logging_enabled %}hidden{% endif %}">
+            <div>
+                <label for="usage_logging_details" class="block text-sm font-medium text-gray-700 mb-1">
+                    What is logged?
+                </label>
+                <textarea id="usage_logging_details"
+                          name="usage_logging_details"
+                          rows="3"
+                          placeholder="Describe what data is captured in logs (e.g., prompts, responses, user IDs, timestamps)..."
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.usage_logging_details or '' }}</textarea>
+            </div>
+
+            <div>
+                <label for="logging_access_owner" class="block text-sm font-medium text-gray-700 mb-1">
+                    Log Access Owner
+                </label>
+                <input type="text"
+                       id="logging_access_owner"
+                       name="logging_access_owner"
+                       value="{{ intake.logging_access_owner or '' }}"
+                       placeholder="Person responsible for log access and review"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="mt-1 text-sm text-gray-500">Who can access and review AI usage logs?</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Visibility -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Compliance Visibility</h3>
+
+        <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors mb-4
+                     {% if intake.compliance_visibility %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+            <input type="checkbox"
+                   name="compliance_visibility"
+                   value="true"
+                   {% if intake.compliance_visibility %}checked{% endif %}
+                   class="mt-0.5 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                   onchange="toggleComplianceDetails(this)">
+            <div class="ml-3">
+                <span class="font-medium text-gray-900">Compliance Team Has Visibility</span>
+                <p class="text-sm text-gray-500">Compliance or legal team can review AI usage as needed</p>
+            </div>
+        </label>
+
+        <div id="compliance-details" class="{% if not intake.compliance_visibility %}hidden{% endif %}">
+            <label for="compliance_visibility_details" class="block text-sm font-medium text-gray-700 mb-1">
+                Visibility Details
+            </label>
+            <textarea id="compliance_visibility_details"
+                      name="compliance_visibility_details"
+                      rows="2"
+                      placeholder="How does compliance review AI usage? What access do they have?"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.compliance_visibility_details or '' }}</textarea>
+        </div>
+    </div>
+
+    <!-- Misuse Detection -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Misuse Detection</h3>
+
+        <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors mb-4
+                     {% if intake.misuse_detection_capability %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+            <input type="checkbox"
+                   name="misuse_detection_capability"
+                   value="true"
+                   {% if intake.misuse_detection_capability %}checked{% endif %}
+                   class="mt-0.5 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                   onchange="toggleMisuseDetails(this)">
+            <div class="ml-3">
+                <span class="font-medium text-gray-900">Misuse Detection Capability</span>
+                <p class="text-sm text-gray-500">Systems or processes exist to detect improper AI usage</p>
+            </div>
+        </label>
+
+        <div id="misuse-details" class="{% if not intake.misuse_detection_capability %}hidden{% endif %}">
+            <label for="misuse_detection_details" class="block text-sm font-medium text-gray-700 mb-1">
+                Detection Methods
+            </label>
+            <textarea id="misuse_detection_details"
+                      name="misuse_detection_details"
+                      rows="2"
+                      placeholder="How is misuse detected? (e.g., automated alerts, manual review, anomaly detection)"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.misuse_detection_details or '' }}</textarea>
+        </div>
+    </div>
+
+    <!-- Incident Response -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Incident Response</h3>
+
+        <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors mb-4
+                     {% if intake.incident_response_documented %}border-green-500 bg-green-50{% else %}border-gray-200{% endif %}">
+            <input type="checkbox"
+                   name="incident_response_documented"
+                   value="true"
+                   {% if intake.incident_response_documented %}checked{% endif %}
+                   class="mt-0.5 h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+            <div class="ml-3">
+                <span class="font-medium text-gray-900">Incident Response Plan Documented</span>
+                <p class="text-sm text-gray-500">A documented process exists for handling AI-related incidents</p>
+            </div>
+        </label>
+
+        <div>
+            <label for="incident_response_path" class="block text-sm font-medium text-gray-700 mb-1">
+                Incident Response Process
+            </label>
+            <textarea id="incident_response_path"
+                      name="incident_response_path"
+                      rows="3"
+                      placeholder="Describe the incident response process. What happens when an issue is detected?"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.incident_response_path or '' }}</textarea>
+            <p class="mt-1 text-sm text-gray-500">Include steps, responsible parties, and escalation procedures.</p>
+        </div>
+    </div>
+
+    <!-- Escalation Contacts -->
+    <div class="border-t pt-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Escalation Contacts</h3>
+        <p class="text-sm text-gray-500 mb-4">Who should be contacted for different types of issues?</p>
+
+        <div id="escalation-contacts" class="space-y-4">
+            {% set contacts = intake.escalation_contacts or [] %}
+            {% if contacts %}
+                {% for contact in contacts %}
+                <div class="escalation-contact grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                        <input type="text"
+                               name="escalation_name[]"
+                               value="{{ contact.name or '' }}"
+                               placeholder="Contact name"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Role</label>
+                        <input type="text"
+                               name="escalation_role[]"
+                               value="{{ contact.role or '' }}"
+                               placeholder="e.g., Security Lead"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                        <input type="email"
+                               name="escalation_email[]"
+                               value="{{ contact.email or '' }}"
+                               placeholder="email@company.com"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Default empty contact row -->
+                <div class="escalation-contact grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                        <input type="text"
+                               name="escalation_name[]"
+                               placeholder="Contact name"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Role</label>
+                        <input type="text"
+                               name="escalation_role[]"
+                               placeholder="e.g., Security Lead"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                        <input type="email"
+                               name="escalation_email[]"
+                               placeholder="email@company.com"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="button"
+                onclick="addEscalationContact()"
+                class="mt-3 inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Another Contact
+        </button>
+    </div>
+</div>
+
+<script>
+function toggleLoggingDetails(checkbox) {
+    document.getElementById('logging-details').classList.toggle('hidden', !checkbox.checked);
+}
+
+function toggleComplianceDetails(checkbox) {
+    document.getElementById('compliance-details').classList.toggle('hidden', !checkbox.checked);
+}
+
+function toggleMisuseDetails(checkbox) {
+    document.getElementById('misuse-details').classList.toggle('hidden', !checkbox.checked);
+}
+
+function addEscalationContact() {
+    const container = document.getElementById('escalation-contacts');
+    const newContact = document.createElement('div');
+    newContact.className = 'escalation-contact grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-lg';
+    newContact.innerHTML = `
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Name</label>
+            <input type="text" name="escalation_name[]" placeholder="Contact name"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Role</label>
+            <input type="text" name="escalation_role[]" placeholder="e.g., Security Lead"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
+            <input type="email" name="escalation_email[]" placeholder="email@company.com"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+    `;
+    container.appendChild(newContact);
+}
+</script>
+{% endblock %}

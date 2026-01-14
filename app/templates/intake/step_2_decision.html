@@ -1,0 +1,124 @@
+{% extends "intake/_wizard_layout.html" %}
+
+{% block title %}Step 2: Decision Impact - AI Governance Intake{% endblock %}
+
+{% block step_title %}Decision Impact Classification{% endblock %}
+{% block step_description %}How AI outputs influence decisions and potential risk areas.{% endblock %}
+
+{% block form_content %}
+<div class="space-y-6">
+    <!-- Decision Classification -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            How are AI outputs used in decision-making? <span class="text-red-500">*</span>
+        </label>
+        <div class="space-y-3">
+            {% set decision_options = [
+                ('informational', 'Informational Only', 'AI provides information that humans use as one of many inputs', 'bg-green-100 text-green-800', 'Low Impact'),
+                ('decision_support', 'Decision Support', 'AI makes recommendations that humans review and act upon', 'bg-blue-100 text-blue-800', 'Moderate Impact'),
+                ('semi_autonomous', 'Semi-Autonomous', 'AI takes actions with human oversight for exceptions', 'bg-yellow-100 text-yellow-800', 'High Impact'),
+                ('fully_autonomous', 'Fully Autonomous', 'AI makes decisions and takes actions without human review', 'bg-red-100 text-red-800', 'Critical Impact')
+            ] %}
+            {% for value, label, desc, badge_class, impact in decision_options %}
+            <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors
+                         {% if intake.decision_classification == value %}border-blue-500 bg-blue-50{% else %}border-gray-200{% endif %}">
+                <input type="radio"
+                       name="decision_classification"
+                       value="{{ value }}"
+                       {% if intake.decision_classification == value %}checked{% endif %}
+                       class="mt-1 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-medium text-gray-900">{{ label }}</span>
+                        <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ badge_class }}">{{ impact }}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">{{ desc }}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Output Usage Description -->
+    <div>
+        <label for="output_usage_description" class="block text-sm font-medium text-gray-700 mb-1">
+            Describe How Outputs Are Used
+        </label>
+        <textarea id="output_usage_description"
+                  name="output_usage_description"
+                  rows="4"
+                  placeholder="Explain specific ways the AI outputs are used in business processes..."
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ intake.output_usage_description or '' }}</textarea>
+        <p class="mt-1 text-sm text-gray-500">Provide concrete examples of how AI outputs influence decisions or actions.</p>
+    </div>
+
+    <!-- Risk Flags -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Potential Risk Areas
+        </label>
+        <p class="text-sm text-gray-500 mb-3">Review and acknowledge any applicable risk flags:</p>
+
+        {% set risk_flags = [
+            ('hiring_decisions', 'Hiring or Employment Decisions', 'AI influences who gets hired, promoted, or terminated'),
+            ('financial_decisions', 'Financial Decisions', 'AI affects credit, pricing, or financial outcomes'),
+            ('health_safety', 'Health or Safety Impact', 'AI could affect physical health or safety'),
+            ('legal_compliance', 'Legal/Compliance Impact', 'AI outputs affect regulatory compliance'),
+            ('customer_facing', 'Customer-Facing Outputs', 'AI generates content customers see directly'),
+            ('personal_data_processing', 'Personal Data Processing', 'AI processes personal or sensitive data'),
+            ('reputation_risk', 'Reputation Risk', 'AI errors could cause significant reputation damage'),
+            ('automated_communications', 'Automated External Communications', 'AI sends messages to external parties')
+        ] %}
+
+        {% set current_flags = intake.risk_flags or {} %}
+
+        <div class="space-y-3">
+            {% for flag_id, flag_label, flag_desc in risk_flags %}
+            <div class="border rounded-lg p-4 {% if current_flags.get(flag_id, {}).get('acknowledged') %}border-yellow-400 bg-yellow-50{% else %}border-gray-200{% endif %}">
+                <label class="flex items-start cursor-pointer">
+                    <input type="checkbox"
+                           name="risk_flag_{{ flag_id }}"
+                           value="true"
+                           {% if current_flags.get(flag_id, {}).get('acknowledged') %}checked{% endif %}
+                           class="mt-1 h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                           onchange="toggleRiskNotes(this, '{{ flag_id }}')">
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-medium text-gray-900">{{ flag_label }}</span>
+                            <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-500">{{ flag_desc }}</p>
+                    </div>
+                </label>
+
+                <!-- Notes field (shown when checked) -->
+                <div id="notes_{{ flag_id }}"
+                     class="mt-3 {% if not current_flags.get(flag_id, {}).get('acknowledged') %}hidden{% endif %}">
+                    <label for="risk_notes_{{ flag_id }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Mitigation notes for this risk:
+                    </label>
+                    <textarea id="risk_notes_{{ flag_id }}"
+                              name="risk_notes_{{ flag_id }}"
+                              rows="2"
+                              placeholder="Describe how this risk is being mitigated..."
+                              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">{{ current_flags.get(flag_id, {}).get('notes', '') }}</textarea>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleRiskNotes(checkbox, flagId) {
+    const notesDiv = document.getElementById('notes_' + flagId);
+    if (checkbox.checked) {
+        notesDiv.classList.remove('hidden');
+    } else {
+        notesDiv.classList.add('hidden');
+    }
+}
+</script>
+{% endblock %}
