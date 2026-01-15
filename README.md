@@ -7,6 +7,8 @@ A comprehensive web application for tracking and managing AI use cases within an
 **AI Governance Intake System:** https://ai-use-case-registry.onrender.com/intake/1/report
 
 
+**AI Intake Form (with dropdowns):** https://ai-use-case-registry.onrender.com/intake/1/report
+
 ## Features
 
 ### Executive Dashboard
