@@ -351,6 +351,16 @@ async def intake_step(
         "section_completion": compute_section_completion(intake),
     })
 
+from fastapi.responses import RedirectResponse
+from sqlalchemy import desc
+
+@app.get("/intake/1/report")
+def intake_one_alias(db: Session = Depends(get_db)):
+    latest = db.query(Intake).order_by(desc(Intake.id)).first()
+    if not latest:
+        return RedirectResponse(url="/intake", status_code=303)
+    return RedirectResponse(url=f"/intake/{latest.id}/report", status_code=303)
+
 
 @app.get("/intake/{intake_id}/review", response_class=HTMLResponse)
 async def intake_review(intake_id: int, request: Request, db: Session = Depends(get_db)):
