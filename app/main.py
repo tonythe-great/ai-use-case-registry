@@ -7,6 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from app.db import engine, get_db, Base
 from app.models import UseCase, Intake, RiskAssessment, RequiredArtifact, ActionItem
@@ -298,6 +299,28 @@ async def intake_new(request: Request, db: Session = Depends(get_db)):
     return RedirectResponse(url=f"/intake/{new_intake.id}/step/1", status_code=303)
 
 
+@app.get("/intake/1/report", response_class=HTMLResponse)
+async def intake_demo_report(request: Request, db: Session = Depends(get_db)):
+    """Stable demo URL - always shows the single-page intake form."""
+    latest = db.query(Intake).order_by(desc(Intake.id)).first()
+    if not latest:
+        # Create a demo intake if none exists
+        latest = Intake(
+            system_name="",
+            intake_status="draft",
+            current_step=1,
+            section_completion={},
+        )
+        db.add(latest)
+        db.commit()
+        db.refresh(latest)
+
+    return templates.TemplateResponse("intake/report.html", {
+        "request": request,
+        "intake": latest,
+    })
+
+
 @app.get("/intake/{intake_id}", response_class=HTMLResponse)
 async def intake_view(intake_id: int, request: Request, db: Session = Depends(get_db)):
     """View intake - redirects to current step or review."""
@@ -350,17 +373,6 @@ async def intake_step(
         "total_steps": 10,
         "section_completion": compute_section_completion(intake),
     })
-
-from fastapi.responses import RedirectResponse
-from sqlalchemy import desc
-
-@app.get("/intake/1/report")
-def intake_one_alias(db: Session = Depends(get_db)):
-    latest = db.query(Intake).order_by(desc(Intake.id)).first()
-    if not latest:
-        return RedirectResponse(url="/intake", status_code=303)
-    return RedirectResponse(url=f"/intake/{latest.id}/report", status_code=303)
-
 
 @app.get("/intake/{intake_id}/review", response_class=HTMLResponse)
 async def intake_review(intake_id: int, request: Request, db: Session = Depends(get_db)):
